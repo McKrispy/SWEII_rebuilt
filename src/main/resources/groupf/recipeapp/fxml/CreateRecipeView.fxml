@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"  fx:controller="groupf.recipeapp.controller.CreateRecipeController">
+    <left>
+        <VBox spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button text="Search Recipes" onAction="#handleSearchRecipes"/>
+                <Button text="Create New Recipe" />
+                <Button text="Recommended Dishes" />
+            </children>
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
+        </VBox>
+    </left>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <VBox spacing="15.0" alignment="TOP_LEFT" >
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20" />
+                    </padding>
+                    <children>
+                        <Label text="Create/Edit Recipe" style="-fx-font-size: 18; -fx-font-weight: bold" />
+
+                        <GridPane hgap="10" vgap="10">
+                            <children>
+                                <Label text="Recipe Name:" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                                <TextField fx:id="recipeNameField" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+                                <Label text="Servings (people):" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+                                <TextField fx:id="servingsField" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+
+                                <Label text="Description:" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                                <TextArea fx:id="descriptionArea" prefRowCount="3" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                            </children>
+                        </GridPane>
+
+                        <VBox spacing="10">
+                            <children>
+                                <Label text="Ingredients" style="-fx-font-size: 14; -fx-font-weight: bold" />
+                                <VBox fx:id="ingredientsBox" spacing="5" />
+                                <Button text="Add Ingredient" onAction="#handleAddIngredient" />
+                            </children>
+                        </VBox>
+
+                        <VBox spacing="10">
+                            <children>
+                                <Label text="Instructions" style="-fx-font-size: 14; -fx-font-weight: bold" />
+                                <VBox fx:id="instructionsBox" spacing="5" />
+                                <Button text="Add Instruction" onAction="#handleAddInstruction" />
+                            </children>
+                        </VBox>
+
+                        <Button text="Submit Recipe" onAction="#handleSubmitRecipe" />
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
