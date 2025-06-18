@@ -13,6 +13,9 @@ module com.recipeapp { // 这里的名字要和你的 pom.xml 中的 groupId 类
     // 开放实体类，如果它们在 TableView 中使用了 PropertyValueFactory
     opens groupf.recipeapp.entity to javafx.base;
 
+    //打开数据库配置文件
+    opens db_configuration;
+
     // 导出你的主包
     exports groupf.recipeapp;
 }
