@@ -80,7 +80,7 @@ public class CreateRecipeController {
         System.out.println("左侧导航按钮：Search Recipes 被点击");
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/MainView.fxml"));
             Parent root = loader.load();  // 加载FXML文件
 
             // 获取当前窗口Stage
