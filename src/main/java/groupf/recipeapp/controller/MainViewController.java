@@ -171,7 +171,7 @@ public class MainViewController implements Initializable {
 
         try {
             // 加载 CreateRecipeView.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateRecipeView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/CreateRecipeView.fxml"));
             Parent createRecipeRoot = loader.load();
             System.out.println("FXML 加载成功");
 
