@@ -10,14 +10,27 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import java.io.IOException;
+import javafx.stage.FileChooser; // 导入 FileChooser
+import java.io.File; // 导入 File
+import java.io.IOException; // 导入 IOException
+import java.nio.file.Files; // 导入 Files
+import java.nio.file.Path; // 导入 Path
+import java.nio.file.StandardCopyOption; // 导入 StandardCopyOption
+import java.util.List; // 导入 List
+import javafx.collections.FXCollections; // 导入 FXCollections
+import javafx.collections.ObservableList; // 导入 ObservableList
+
+
 import groupf.recipeapp.entity.Recipe;
 import groupf.recipeapp.entity.Ingredient;
 import groupf.recipeapp.entity.Instruction;
 import groupf.recipeapp.entity.InstructionEntry;
 import groupf.recipeapp.entity.Region;
-import groupf.recipeapp.dao.RecipeDAO; // 新增导入
-import groupf.recipeapp.dao.RecipeDAOImpl; // 新增导入
+import groupf.recipeapp.dao.RecipeDAO;
+import groupf.recipeapp.dao.RecipeDAOImpl;
+import groupf.recipeapp.dao.RegionDAO; // 导入 RegionDAO
+import groupf.recipeapp.dao.RegionDAOImpl; // 导入 RegionDAOImpl
+
 
 public class CreateRecipeController {
 
@@ -35,6 +48,82 @@ public class CreateRecipeController {
 
     @FXML
     private VBox instructionsBox;
+
+    @FXML
+    private ComboBox<Region> regionComboBox; // FXML 注解的地区选择下拉框
+
+    @FXML
+    private Label imagePathLabel; // FXML 注解的图片路径标签
+
+    private String selectedImagePath; // 存储选定图片文件的相对路径
+
+    private RegionDAO regionDAO; // 地区 DAO 实例
+
+    @FXML
+    public void initialize() {
+        regionDAO = new RegionDAOImpl(); // 实例化 RegionDAO
+        loadRegions();
+    }
+
+    private void loadRegions() {
+        try {
+            List<Region> regions = regionDAO.getAllRegions();
+            ObservableList<Region> regionObservableList = FXCollections.observableArrayList(regions);
+            regionComboBox.setItems(regionObservableList);
+            // 可以设置一个默认值，或者让用户选择
+            if (!regions.isEmpty()) {
+                regionComboBox.getSelectionModel().selectFirst();
+            }
+        } catch (Exception e) {
+            showError("Failed to load regions: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleUploadImage(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("选择图片文件");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("图片文件", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (selectedFile != null) {
+            try {
+                // 定义图片存储的相对路径 (src/main/resources/images/)
+                // 你需要在 resources 目录下手动创建 images 文件夹
+                String resourceDir = "src/main/resources/groupf/recipeapp/images/";
+                File destDir = new File(resourceDir);
+                if (!destDir.exists()) {
+                    destDir.mkdirs(); // 如果目录不存在则创建
+                }
+
+                // 生成唯一的文件名，防止重复
+                String fileName = System.currentTimeMillis() + "_" + selectedFile.getName();
+                Path destinationPath = new File(destDir, fileName).toPath();
+
+                // 复制文件
+                Files.copy(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+                // 存储相对路径，这是我们将保存到数据库的路径
+                // 从 "src/main/resources/" 之后开始算作资源路径
+                this.selectedImagePath = "/groupf/recipeapp/images/" + fileName;
+                imagePathLabel.setText(selectedFile.getName()); // 显示文件名在UI上
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("图片上传成功");
+                alert.setHeaderText(null);
+                alert.setContentText("图片已成功上传到本地资源。");
+                alert.showAndWait();
+
+            } catch (IOException e) {
+                showError("无法复制图片文件: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 
     @FXML
     private void handleAddIngredient() {
@@ -73,9 +162,10 @@ public class CreateRecipeController {
         String name = recipeNameField.getText().trim();
         String servingsStr = servingsField.getText().trim();
         String description = descriptionArea.getText().trim();
+        Region selectedRegion = regionComboBox.getSelectionModel().getSelectedItem(); // 获取选定的地区
 
-        if (name.isEmpty() || servingsStr.isEmpty()) {
-            showError("Recipe name and servings are required.");
+        if (name.isEmpty() || servingsStr.isEmpty() || selectedRegion == null) { // 检查地区是否选择
+            showError("Recipe name, servings, and region are required.");
             return;
         }
 
@@ -89,23 +179,32 @@ public class CreateRecipeController {
 
         Recipe recipe = new Recipe(name, servings);
         recipe.setDescription(description);
+        recipe.setRegion(selectedRegion); // 设置地区
+        recipe.setImagePath(selectedImagePath); // 设置图片路径
 
         // 收集 ingredientsBox 中的输入项
         for (Node node : ingredientsBox.getChildren()) {
-            if (node instanceof HBox hbox && hbox.getChildren().size() == 3) {
-                TextField quantityField = (TextField) hbox.getChildren().get(0);
-                TextField unitField = (TextField) hbox.getChildren().get(1);
-                TextField nameField = (TextField) hbox.getChildren().get(2);
+            if (node instanceof HBox hbox) { // 检查是否为 HBox
+                // 确保 hbox 至少有3个TextFields (quantity, unit, name)
+                if (hbox.getChildren().size() >= 3 &&
+                    hbox.getChildren().get(0) instanceof TextField &&
+                    hbox.getChildren().get(1) instanceof TextField &&
+                    hbox.getChildren().get(2) instanceof TextField) {
 
-                try {
-                    double quantity = Double.parseDouble(quantityField.getText().trim());
-                    String unit = unitField.getText().trim();
-                    String ingredientName = nameField.getText().trim();
-                    Ingredient ingredient = new Ingredient(ingredientName);
-                    recipe.addIngredient(new InstructionEntry(ingredient, quantity, unit));
-                } catch (NumberFormatException e) {
-                    showError("Ingredient quantity must be a number.");
-                    return;
+                    TextField quantityField = (TextField) hbox.getChildren().get(0);
+                    TextField unitField = (TextField) hbox.getChildren().get(1);
+                    TextField nameField = (TextField) hbox.getChildren().get(2);
+
+                    try {
+                        double quantity = Double.parseDouble(quantityField.getText().trim());
+                        String unit = unitField.getText().trim();
+                        String ingredientName = nameField.getText().trim();
+                        Ingredient ingredient = new Ingredient(ingredientName);
+                        recipe.addIngredient(new InstructionEntry(ingredient, quantity, unit));
+                    } catch (NumberFormatException e) {
+                        showError("Ingredient quantity must be a number.");
+                        return;
+                    }
                 }
             }
         }
@@ -113,13 +212,18 @@ public class CreateRecipeController {
         // 收集 instructionsBox 中的输入项
         int stepNumber = 1;
         for (Node node : instructionsBox.getChildren()) {
-            if (node instanceof TextField field) {
+            // 确保是 HBox 并且包含 TextField
+            if (node instanceof HBox hbox && hbox.getChildren().size() >= 1 && hbox.getChildren().get(0) instanceof TextField) {
+                TextField field = (TextField) hbox.getChildren().get(0);
                 String stepDescription = field.getText().trim();
-                recipe.addInstruction(new Instruction(stepNumber++, stepDescription));
+                if (!stepDescription.isEmpty()) { // 避免添加空步骤
+                    recipe.addInstruction(new Instruction(stepNumber++, stepDescription));
+                }
             }
         }
 
-        // 插入数据库（你应确保有对应的方法）
+
+        // 插入数据库
         RecipeDAO recipeDAO = new RecipeDAOImpl();
         boolean success = recipeDAO.insertRecipe(recipe);
 
@@ -129,6 +233,16 @@ public class CreateRecipeController {
             alert.setHeaderText(null);
             alert.setContentText("Recipe \"" + name + "\" submitted successfully!");
             alert.showAndWait();
+            // 提交成功后清空表单
+            recipeNameField.clear();
+            servingsField.clear();
+            descriptionArea.clear();
+            ingredientsBox.getChildren().clear();
+            instructionsBox.getChildren().clear();
+            regionComboBox.getSelectionModel().clearSelection();
+            imagePathLabel.setText("No image selected");
+            selectedImagePath = null; // 清空已选图片路径
+
         } else {
             showError("Failed to submit recipe to database.");
         }
@@ -163,5 +277,4 @@ public class CreateRecipeController {
             // 可选: 弹出错误提示
         }
     }
-
 }

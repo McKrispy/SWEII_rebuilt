@@ -7,7 +7,7 @@
 
 /* Sidebar Styles */
 .sidebar {
-    -fx-background-color: #3f51b5; /* Deep Indigo for sidebar */
+    -fx-background-color: #f8f8f8; /* Deep Indigo for sidebar */
     -fx-padding: 20px;
     -fx-spacing: 15px;
 }
@@ -19,7 +19,7 @@
 }
 
 .sidebar-button {
-    -fx-background-color: #5c6bc0; /* Lighter Indigo for buttons */
+    -fx-background-color: #f8f8f8; /* Lighter Indigo for buttons */
     -fx-text-fill: #ffffff;
     -fx-font-size: 16px;
     -fx-alignment: CENTER_LEFT; /* Align text to left */
@@ -29,12 +29,12 @@
 }
 
 .sidebar-button:hover {
-    -fx-background-color: #7986cb; /* Even lighter Indigo on hover */
+    -fx-background-color: #f8f8f8; /* Even lighter Indigo on hover */
 }
 
 .sidebar-button-active {
     -fx-background-color: #ffffff; /* White background for active button */
-    -fx-text-fill: #3f51b5; /* Deep Indigo text for active button */
+    -fx-text-fill: #f8f8f8; /* Deep Indigo text for active button */
     -fx-font-size: 16px;
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 10px 20px;
