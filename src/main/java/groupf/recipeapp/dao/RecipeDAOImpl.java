@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Statement;
+
 
 /**
  * RecipeDAO 接口的具体实现类，负责与数据库进行交互。
@@ -100,6 +102,35 @@ public class RecipeDAOImpl implements RecipeDAO {
 
         return recipe;
     }
+
+    /**
+     *
+     * 插入菜谱，传入数据库
+     * */
+    @Override
+    public boolean insertRecipe(Recipe recipe) {
+        String sql = "INSERT INTO recipe (name, description, servings, imagePath, region_id) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, recipe.getName());
+            ps.setString(2, recipe.getDescription());
+            ps.setInt(3, recipe.getServings());
+            ps.setString(4, recipe.getImagePath());
+            if (recipe.getRegion() != null) {
+                ps.setInt(5, recipe.getRegion().getId());
+            } else {
+                ps.setNull(5, java.sql.Types.INTEGER); // 没有地区则设置为NULL
+            }
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
 
     /**

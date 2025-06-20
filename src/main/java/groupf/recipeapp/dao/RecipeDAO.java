@@ -19,4 +19,6 @@ public interface RecipeDAO {
      * @return 匹配名称的食谱列表。
      */
     List<Recipe> searchRecipesByName(String name);
+
+    boolean insertRecipe(Recipe recipe);
 }
