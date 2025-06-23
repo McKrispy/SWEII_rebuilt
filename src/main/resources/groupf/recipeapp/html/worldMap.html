@@ -1,40 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>世界地图</title>
+    <title>世界食谱地图</title>
+    <meta charset="UTF-8">
     <style>
-        body { font-family: Arial, sans-serif; }
-        #map-container {
-            width: 800px;
-            height: 500px;
-            border: 1px solid #ccc;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            font-size: 24px;
-            cursor: pointer;
             background-color: #f0f0f0;
+        }
+        h1 { margin-bottom: 20px; }
+        #selected-region-info {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        /* 确保图片自适应，并可以点击 */
+        #map-image {
+            max-width: 900px; /* 根据您的WebView大小调整 */
+            height: auto;
+            border: 1px solid #ccc;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <h1>点击地图区域（模拟）</h1>
-    <div id="map-container">
-        点击此处模拟选择国家
-    </div>
+    <h1>世界食谱地图</h1>
+    <div id="selected-region-info">点击地图区域以显示食谱信息</div>
+
+    <!-- 引用您的世界地图图片，并关联一个图像映射 -->
+    <img id="map-image" src="../images/world_map.png" alt="世界地图" usemap="#worldMap">
+
+    <!-- 定义图像映射 -->
+    <map name="worldMap">
+        <area target="" alt="NA" title="NA" href="#" onclick="sendRegionToJavaFX('NA');" coords="252,109,264,99,264,87,273,75,264,65,251,63,234,65,215,68,194,65,174,67,160,73,145,77,129,82,116,89,111,97,99,100,86,101,72,102,62,104,57,110,58,122,60,130,61,137,75,133,85,130,99,129,106,138,113,148,116,154,115,164,117,171,122,180,127,186,133,197,139,204,147,208,155,214,164,220,174,215,185,208,186,198,183,186,187,177,193,167,198,162,209,160,217,158,222,149,228,140,233,131,238,123,243,114" shape="poly">
+        <area target="" alt="SA" title="SA" href="#" onclick="sendRegionToJavaFX('SA');" coords="181,227,193,223,205,226,214,231,222,235,228,242,237,247,245,250,242,260,238,268,236,278,232,283,223,293,220,300,211,311,202,322,199,332,198,338,199,345,193,343,188,340,188,328,191,314,196,294,195,283,197,274,188,270,181,264,180,253,177,243" shape="poly">
+        <area target="" alt="AF" title="AF" href="#" onclick="sendRegionToJavaFX('AF');" coords="323,187,314,187,308,183,301,177,295,179,288,180,282,183,276,189,272,200,271,208,271,218,278,229,285,232,298,233,307,235,308,247,311,256,311,264,313,272,314,280,318,287,327,291,333,288,342,282,350,281,359,276,359,266,359,259,350,257,349,250,353,244,357,235,360,227,353,225,348,220,342,213,340,204,337,198,331,191" shape="poly">
+        <area target="" alt="ME" title="ME" href="#" onclick="sendRegionToJavaFX('ME');" coords="337,186,342,193,347,200,352,209,357,216,364,213,372,209,375,203,376,196,384,188,385,177,384,170,383,161,379,157,372,155,365,152,360,149,353,152,344,156,337,164,335,170,334,179" shape="poly">
+        <area target="" alt="EU" title="EU" href="#" onclick="sendRegionToJavaFX('EU');" coords="337,156,329,163,325,169,314,173,309,167,304,164,297,166,289,171,281,173,281,163,284,152,279,143,282,132,294,124,306,118,312,111,316,104,324,96,333,95,343,97,349,101,359,104,371,104,383,104,387,98,395,95,402,103,405,115,406,125,407,136,406,143,403,151,398,155,386,154,378,150,368,145,360,143,352,146,346,150" shape="poly">
+        <area target="" alt="AS" title="AS" href="#" onclick="sendRegionToJavaFX('AS');" coords="409,96,419,92,431,87,443,86,454,90,463,97,474,96,485,99,494,100,506,101,517,104,527,106,537,107,546,110,554,118,545,122,537,124,531,128,523,132,518,138,514,144,510,148,507,139,507,130,496,131,489,139,492,145,493,154,492,162,490,169,487,175,480,184,471,183,467,179,460,177,463,186,461,194,456,201,462,210,466,216,469,225,471,234,463,247,452,253,444,256,435,251,429,245,425,239,424,227,420,208,424,217,414,207,405,212,404,220,403,227,395,220,391,210,387,203,384,198,389,187,389,175,389,164,397,160,407,155,411,145,411,133,408,122,407,112,406,104" shape="poly">
+        <area target="" alt="OC" title="OC" href="#" onclick="sendRegionToJavaFX('OC');" coords="478,246,490,247,498,254,504,266,509,274,515,286,525,295,534,301,541,311,540,319,529,326,522,328,515,326,506,320,498,321,492,321,490,313,484,306,475,304,468,302,460,304,453,305,450,299,450,290,450,282,463,274,469,267,476,256" shape="poly">
+    </map>
 
     <script>
-        // 当点击模拟地图区域时，通过改变URL来通知JavaFX应用程序
-        document.getElementById('map-container').addEventListener('click', function() {
-            // 模拟获取一个国家代码，例如 "US" (美国)
-            var countryCode = "US";
+        // 这个函数负责将点击的区域代码发送到JavaFX应用程序
+        function sendRegionToJavaFX(regionCode) {
+            const selectedRegionInfo = document.getElementById('selected-region-info');
+            selectedRegionInfo.textContent = `您点击了：${regionCode} 区域。正在获取食谱...`;
 
-            // 通过改变 window.location.href 来发送数据到 JavaFX
+            // 通过改变 window.location.href 来发送地区代码到 JavaFX
             // 使用自定义协议 'app://'
-            window.location.href = "app://countryCode/" + countryCode;
-            console.log("Country code '" + countryCode + "' sent via URL change to JavaFX.");
-        });
+            window.location.href = "app://regionCode/" + regionCode;
+            console.log("Region code '" + regionCode + "' sent via URL change to JavaFX.");
+        }
     </script>
 
 </body>
