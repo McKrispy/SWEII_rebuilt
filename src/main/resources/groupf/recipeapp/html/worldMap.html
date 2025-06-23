@@ -25,19 +25,15 @@
     </div>
 
     <script>
-        // 当点击模拟地图区域时，调用JavaFX应用程序中的方法
+        // 当点击模拟地图区域时，通过改变URL来通知JavaFX应用程序
         document.getElementById('map-container').addEventListener('click', function() {
             // 模拟获取一个国家代码，例如 "US" (美国)
             var countryCode = "US";
 
-            // 检查JavaFX应用程序的host对象是否存在
-            // 'app' 是我们将从JavaFX传递给WebView的JavaScript对象名
-            if (typeof app !== 'undefined' && app.getRecipeByCountryCode) {
-                app.getRecipeByCountryCode(countryCode);
-                console.log("Country code '" + countryCode + "' sent to JavaFX.");
-            } else {
-                console.log("JavaFX host object 'app' or 'getRecipeByCountryCode' method not found.");
-            }
+            // 通过改变 window.location.href 来发送数据到 JavaFX
+            // 使用自定义协议 'app://'
+            window.location.href = "app://countryCode/" + countryCode;
+            console.log("Country code '" + countryCode + "' sent via URL change to JavaFX.");
         });
     </script>
 

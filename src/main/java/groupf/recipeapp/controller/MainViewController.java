@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.List; // 修改为 java.util.List
 import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
+import groupf.recipeapp.App;
 
 
 import javafx.scene.Parent;
@@ -70,8 +71,13 @@ public class MainViewController implements Initializable {
     
     @FXML
     private void handleRecommendedDishes(ActionEvent event) {
-        System.out.println("左侧导航按钮：Recommended Dishes 被点击");
-        // TODO: 实现推荐算法或跳转页面
+        System.out.println("左侧导航按钮：World Cuisines 被点击，尝试跳转到世界地图页面。");
+        try {
+            App.setRoot("WorldMapView"); // 调用App类的setRoot方法跳转到WorldMapView
+        } catch (IOException e) {
+            e.printStackTrace();
+            showErrorDialog("页面跳转失败", "无法加载 WorldMapView.fxml。请检查文件是否存在且路径正确。");
+        }
     }
 
     /**
@@ -262,7 +268,7 @@ public class MainViewController implements Initializable {
 
         try {
             // 加载 CreateRecipeView.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/redesigned_MainView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
             Parent createRecipeRoot = loader.load();
             System.out.println("FXML 加载成功");
 

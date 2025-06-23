@@ -7,7 +7,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import netscape.javascript.JSObject;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -39,14 +38,28 @@ public class WorldMapController implements Initializable {
         }
 
 
-        // 等待页面加载完成
-        webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == javafx.concurrent.Worker.State.SUCCEEDED) {
-                // 当HTML页面加载成功时，将Java对象注入到JavaScript环境中
-                // 'app' 是HTML中JavaScript将用来调用Java方法的对象名
-                JSObject window = (JSObject) webEngine.executeScript("window");
-                window.setMember("app", new JavaScriptReceiver());
-                System.out.println("JavaFX对象已注入到JavaScript环境中。");
+        // 监听WebEngine的URL变化
+        webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue.startsWith("app://countryCode/")) {
+                // 解析国家代码
+                String countryCode = newValue.substring("app://countryCode/".length());
+                System.out.println("从URL接收到国家代码: " + countryCode);
+
+                // 在这里，你可以根据国家代码加载并显示食谱数据
+                // 例如，查询数据库或调用API
+                // 确保在JavaFX应用程序线程上更新UI
+                javafx.application.Platform.runLater(() -> {
+                    countryCodeLabel.setText(countryCode);
+                    // 实际应用中，你可能会在这里导航到另一个视图或加载食谱列表
+                    // 例如：loadRecipesForCountry(countryCode);
+                });
+
+                // 为了防止WebView试图真正导航到这个“假”URL，
+                // 可以重新加载原始HTML或设置一个空URL
+                // 这里我们重新加载原始HTML，保持地图视图的稳定
+                if (htmlFileUrl != null) {
+                    webEngine.load(htmlFileUrl.toExternalForm());
+                }
             }
         });
     }

@@ -1,4 +1,4 @@
-module com.recipeapp { // 这里的名字要和你的 pom.xml 中的 groupId 类似
+module groupf.recipeapp { // 这里的名字要和你的 pom.xml 中的 groupId 类似
     // 需要的 JavaFX 模块
     requires javafx.controls;
     requires javafx.fxml;

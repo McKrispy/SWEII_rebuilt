@@ -62,9 +62,11 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.recipeapp.App</mainClass>
+                    <mainClass>groupf.recipeapp.App</mainClass>
                     <options>
                         <arg>--add-exports=javafx.web/netscape.javascript=com.recipeapp</arg>
+                        <arg>--enable-native-access=javafx.graphics</arg>
+                        <arg>--enable-native-access=javafx.web</arg> <!-- 新增：解决 javafx.web 警告 -->
                     </options>
                 </configuration>
             </plugin>
