@@ -64,7 +64,7 @@
                 <configuration>
                     <mainClass>groupf.recipeapp.App</mainClass>
                     <options>
-                        <arg>--add-exports=javafx.web/netscape.javascript=com.recipeapp</arg>
+                        <arg>--add-exports=javafx.web/netscape.javascript=groupf.recipeapp</arg>
                         <arg>--enable-native-access=javafx.graphics</arg>
                         <arg>--enable-native-access=javafx.web</arg> <!-- 新增：解决 javafx.web 警告 -->
                     </options>
