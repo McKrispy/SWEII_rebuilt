@@ -2,6 +2,7 @@ module com.recipeapp { // 这里的名字要和你的 pom.xml 中的 groupId 类
     // 需要的 JavaFX 模块
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.web;
 
     // 需要的数据库模块
     requires java.sql;

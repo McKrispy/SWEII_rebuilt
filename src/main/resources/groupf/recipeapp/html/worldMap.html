@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>世界地图</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #map-container {
+            width: 800px;
+            height: 500px;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>点击地图区域（模拟）</h1>
+    <div id="map-container">
+        点击此处模拟选择国家
+    </div>
+
+    <script>
+        // 当点击模拟地图区域时，调用JavaFX应用程序中的方法
+        document.getElementById('map-container').addEventListener('click', function() {
+            // 模拟获取一个国家代码，例如 "US" (美国)
+            var countryCode = "US";
+
+            // 检查JavaFX应用程序的host对象是否存在
+            // 'app' 是我们将从JavaFX传递给WebView的JavaScript对象名
+            if (typeof app !== 'undefined' && app.getRecipeByCountryCode) {
+                app.getRecipeByCountryCode(countryCode);
+                console.log("Country code '" + countryCode + "' sent to JavaFX.");
+            } else {
+                console.log("JavaFX host object 'app' or 'getRecipeByCountryCode' method not found.");
+            }
+        });
+    </script>
+
+</body>
+</html>

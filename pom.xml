@@ -30,6 +30,11 @@
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
@@ -58,6 +63,9 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.recipeapp.App</mainClass>
+                    <options>
+                        <arg>--add-exports=javafx.web/netscape.javascript=com.recipeapp</arg>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

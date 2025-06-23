@@ -180,7 +180,54 @@ public class CreateRecipeController {
         Recipe recipe = new Recipe(name, servings);
         recipe.setDescription(description);
         recipe.setRegion(selectedRegion); // 设置地区
+
+        if (selectedImagePath != null && !selectedImagePath.isEmpty()) {
+            try {
+                // 1. 获取当前图片的实际文件路径 (因为selectedImagePath是资源路径)
+                // 假设图片存储在项目 workspace 的 src/main/resources/ 目录下
+                String projectRoot = System.getProperty("user.dir"); // 获取项目根目录
+                // 构建完整的旧文件路径
+                // selectedImagePath 类似 "/groupf/recipeapp/images/时间戳_文件名.png"
+                String currentFilePathOnDisk = projectRoot + File.separator + "src" + File.separator + "main" +
+                                               File.separator + "resources" + selectedImagePath.replace("/", File.separator);
+                File currentImageFile = new File(currentFilePathOnDisk);
+
+                if (currentImageFile.exists()) {
+                    // 2. 提取原始文件的扩展名
+                    String currentFileName = currentImageFile.getName();
+                    String fileExtension = "";
+                    int dotIndex = currentFileName.lastIndexOf('.');
+                    if (dotIndex > 0 && dotIndex < currentFileName.length() - 1) {
+                        fileExtension = currentFileName.substring(dotIndex); // 包含点，例如 ".png"
+                    }
+
+                    // 3. 构造新的文件名：食谱名称_image.扩展名
+                    // 清理食谱名称，使其适合作为文件名（替换特殊字符为空格或下划线）
+                    String sanitizedRecipeName = name.replaceAll("[^a-zA-Z0-9\\s]", "").trim().replaceAll("\\s+", "_");
+                    String newFileName = sanitizedRecipeName + "_image" + fileExtension;
+                    
+                    // 构造新的目标文件路径
+                    Path newDestinationPath = new File(currentImageFile.getParentFile(), newFileName).toPath();
+
+                    // 4. 重命名（移动）文件
+                    Files.move(currentImageFile.toPath(), newDestinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+                    // 5. 更新 selectedImagePath 为新的相对路径
+                    this.selectedImagePath = "/groupf/recipeapp/images/" + newFileName;
+                    System.out.println("图片已重命名为: " + this.selectedImagePath); // 调试信息
+                } else {
+                    System.err.println("旧图片文件未找到: " + currentFilePathOnDisk);
+                    // 警告用户图片未找到，但仍继续提交食谱（不阻止提交）
+                }
+
+            } catch (IOException e) {
+                showError("无法重命名图片文件: " + e.getMessage());
+                e.printStackTrace();
+                return; // 如果重命名失败，则停止食谱提交
+            }
+        }
         recipe.setImagePath(selectedImagePath); // 设置图片路径
+        
 
         // 收集 ingredientsBox 中的输入项
         for (Node node : ingredientsBox.getChildren()) {
