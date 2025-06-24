@@ -47,7 +47,12 @@ public class InstructionEntry {
 	public int getRecipeId() {
 		return recipeId;
 	}
-	
+
+	public void setRecipeId(int recipeId) {
+		this.recipeId = recipeId;
+	}
+
+
 	@Override
 	public String toString() {
 	    return quantity + " " + unit + " " + ingredient.getName();

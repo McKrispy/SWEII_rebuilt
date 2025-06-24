@@ -70,7 +70,9 @@ public class MainViewController implements Initializable {
     private RecipeDAO recipeDAO; // 声明为接口类型
     private RegionDAO regionDAO;
 
-    
+    private Recipe currentSelectedRecipe;
+
+
     // 新增：用于存储当前筛选的地区
     private String currentFilteredRegion = null;
 
@@ -122,6 +124,9 @@ public class MainViewController implements Initializable {
      * 根据传入的Recipe对象更新右侧的预览区域。
      */
     private void displayRecipePreview(Recipe recipe) {
+
+        this.currentSelectedRecipe = recipe; // 保存选中的菜谱，供 full recipe 页面使用
+
         if (recipe != null) {
             previewRecipeName.setText(recipe.getName() != null ? recipe.getName() : "N/A");
             previewDescription.setText(recipe.getDescription() != null ? recipe.getDescription() : "无描述。");
@@ -156,27 +161,23 @@ public class MainViewController implements Initializable {
      * @param recipe 选中的食谱对象
      * @param event 鼠标事件，用于获取当前舞台
      */
-    private void navigateToRecipeDetail(Recipe recipe, javafx.scene.input.MouseEvent event) {
+    private void navigateToRecipeDetail(Recipe selectedRecipe, MouseEvent event) {
         try {
-            // 假设您有一个 RecipeDetailView.fxml 和 RecipeDetailController
-            // 您需要根据实际的详情页面FXML路径进行修改
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/RecipeDetailView.fxml"));
-            Parent detailRoot = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/FullRecipeView.fxml"));
+            Parent root = loader.load();
 
-            // 如果您的详情页面需要接收Recipe对象，可以在这里设置控制器
-            // RecipeDetailController controller = loader.getController();
-            // controller.setRecipe(recipe); // 假设有一个setRecipe方法
+            FullRecipeController controller = loader.getController();
+            controller.setRecipe(selectedRecipe);
 
-            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene detailScene = new Scene(detailRoot);
-            currentStage.setScene(detailScene);
-            currentStage.setTitle("Recipe Details: " + recipe.getName());
+            Stage stage = new Stage();
+            stage.setTitle("Recipe Details - " + selectedRecipe.getName());
+            stage.setScene(new Scene(root));
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorDialog("无法打开食谱详情页面", e.getMessage());
         }
     }
-    
+
     
     /**
      * 当 FXML 文件加载完成，所有 @FXML 成员被注入后，此方法会自动调用。
@@ -375,48 +376,25 @@ public class MainViewController implements Initializable {
         }
 
     }
-
     @FXML
     private void handleShowFullRecipe() {
-        try {
-            // 诊断代码开始
-            System.out.println("=== 开始诊断 FXML 加载问题 ===");
-            String resourcePath = "groupf/recipeapp/fxml/FullRecipeView.fxml";
+        if (currentSelectedRecipe != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/FullRecipeView.fxml"));
+                Parent root = loader.load();
 
-// 方法1：使用 ClassLoader
-            URL url1 = getClass().getClassLoader().getResource(resourcePath);
-            System.out.println("ClassLoader 加载路径: " + url1);
+                FullRecipeController controller = loader.getController();
+                controller.setRecipe(currentSelectedRecipe);  // 传递当前选中的菜谱
 
-// 方法2：使用 Class.getResource
-            URL url2 = getClass().getResource("/" + resourcePath);
-            System.out.println("Class.getResource 加载路径: " + url2);
-
-
-
-            if (url1 == null && url2 == null) {
-                System.err.println("❌ 所有加载方式都失败，请检查：");
-                System.err.println("1. 确认执行过 mvn clean compile");
-                System.err.println("2. 检查 target/classes/" + resourcePath + " 是否存在");
-                System.err.println("3. 如果使用模块化，检查 module-info.java 配置");
-                return;
+                Stage stage = new Stage();
+                stage.setTitle("Full Recipe - " + currentSelectedRecipe.getName());
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-// 诊断代码结束
-            // 加载 FullRecipeView.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/FullRecipeView.fxml"));
-            Parent root = loader.load();
-
-            // 传递当前选中的菜谱数据（假设有 getSelectedRecipe 方法）
-            //FullRecipeController controller = loader.getController();
-           // controller.setRecipe(currentRecipe); // 你需要定义 currentRecipe 变量
-
-            // 显示新窗口
-            Stage stage = new Stage();
-            stage.setTitle("Full Recipe");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("无法加载 FullRecipeView.fxml");
+        } else {
+            System.out.println("没有选中的菜谱！");
         }
     }
 

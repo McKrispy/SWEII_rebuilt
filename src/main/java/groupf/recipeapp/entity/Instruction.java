@@ -7,6 +7,10 @@ public class Instruction {
 
     
     //constructor
+	public Instruction() {
+
+	}
+
 	public Instruction(int stepNumber, String description) {
 		this.stepNumber = stepNumber;
 		this.description = description;

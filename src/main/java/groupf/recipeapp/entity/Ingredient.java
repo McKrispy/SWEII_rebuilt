@@ -5,6 +5,8 @@ public class Ingredient {
 	 private String name;
 	 
 	// constructors
+	public Ingredient() {}
+
 	public Ingredient(int id, String name) {
 		super();
 		this.id = id;
@@ -27,6 +29,9 @@ public class Ingredient {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	@Override
