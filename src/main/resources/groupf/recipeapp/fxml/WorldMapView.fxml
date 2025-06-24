@@ -11,6 +11,14 @@
 <BorderPane xmlns="http://javafx.com/javafx/20"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="groupf.recipeapp.controller.WorldMapController">
+    <!-- DEBUG LABEL: 用于确认 FXML 视图是否已加载 -->
+    <top>
+        <Label text="世界地图视图已加载!" style="-fx-font-size: 24px; -fx-text-fill: green;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="10" bottom="10"/>
+            </padding>
+        </Label>
+    </top>
     <center>
         <WebView fx:id="worldMapWebView" prefHeight="700.0" prefWidth="1000.0"/>
     </center>
@@ -26,7 +34,7 @@
                 <!-- 添加“查看该地区详情”按钮 -->
                 <Button text="查看该地区详情" onAction="#handleViewRegionDetails"/>
                 <!-- 保留返回主菜单按钮 -->
-                <Button text="返回主菜单" onAction="#handleBackToMain"/>
+                <Button text="返回主菜单"/>
             </HBox>
         </VBox>
     </bottom>

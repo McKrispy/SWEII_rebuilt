@@ -7,5 +7,5 @@ import java.sql.SQLException;
 public interface RegionDAO {
     List<Region> getAllRegions() throws SQLException;
     Region getRegionById(int id) throws SQLException; // 可选：根据ID获取地区
-    Region getRegionByCode(String code); 
+    Region getRegionByCode(String code) throws SQLException; 
 }

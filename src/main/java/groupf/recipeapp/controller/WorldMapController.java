@@ -7,6 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.concurrent.Worker; // 导入 Worker 类
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,45 +23,47 @@ public class WorldMapController implements Initializable {
     private WebEngine webEngine;
     private String currentSelectedRegion = null; 
 
+    // 调试点：构造函数，检查控制器何时被实例化
+    public WorldMapController() {
+        System.out.println("DEBUG: WorldMapController: 构造函数被调用。实例哈希: " + this.hashCode());
+    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        System.out.println("DEBUG: WorldMapController: initialize 方法被调用。实例哈希: " + this.hashCode() + ". 初始 currentSelectedRegion: " + currentSelectedRegion);
         webEngine = worldMapWebView.getEngine();
 
         // 启用JavaScript调试，有助于在开发过程中查看WebView内部的错误
         webEngine.setJavaScriptEnabled(true);
 
         // 加载HTML文件
-        // 使用getResource()方法确保无论JAR文件在哪里运行，都能正确找到HTML文件
         URL htmlFileUrl = getClass().getResource("/groupf/recipeapp/html/worldMap.html");
         if (htmlFileUrl != null) {
             webEngine.load(htmlFileUrl.toExternalForm());
+            System.out.println("DEBUG: WorldMapController: HTML 文件从加载: " + htmlFileUrl.toExternalForm());
         } else {
             System.err.println("错误：无法找到 worldMap.html 文件。请检查路径。");
         }
 
+        // --- 核心修复：使用 setPromptHandler 监听 JavaScript 的 prompt 调用 ---
+        webEngine.setPromptHandler(promptData -> {
+            String message = promptData.getMessage();
+            System.out.println("DEBUG: WorldMapController: 从 JavaScript 接收到 prompt 消息: '" + message + "'. 实例哈希: " + this.hashCode());
 
-        // 监听WebEngine的URL变化
-        webEngine.locationProperty().addListener((observable, oldValue, newValue) -> {
-            // 将 "countryCode" 改为 "regionCode"
-            if (newValue != null && newValue.startsWith("app://regionCode/")) {
-                // 解析地区代码
-                String regionCode = newValue.substring("app://regionCode/".length());
-                System.out.println("从URL接收到地区代码: " + regionCode);
+            // 假设我们约定 prompt 消息格式为 "regionCode:XYZ"
+            if (message != null && message.startsWith("regionCode:")) {
+                String regionCode = message.substring("regionCode:".length());
+                System.out.println("DEBUG: WorldMapController: 从 prompt 消息解析到地区代码: '" + regionCode + "'. 实例哈希: " + this.hashCode());
 
-                // 更新UI显示
                 javafx.application.Platform.runLater(() -> {
-                    selectedRegionPromptLabel.setText("您选择了 " + regionCode + " 地区。");
+                    selectedRegionPromptLabel.setText("您选择了: " + regionCode + " 地区。");
                     currentSelectedRegion = regionCode; // 存储当前选定的地区
+                    System.out.println("DEBUG: WorldMapController: UI 更新。currentSelectedRegion 已设置为 '" + currentSelectedRegion + "'. 实例哈希: " + this.hashCode());
                 });
-
-                // 为了防止WebView试图真正导航到这个“假”URL，
-                // 可以重新加载原始HTML或设置一个空URL
-                // 这里我们重新加载原始HTML，保持地图视图的稳定
-                if (htmlFileUrl != null) {
-                    webEngine.load(htmlFileUrl.toExternalForm());
-                }
+                return ""; // 返回空字符串，表示处理了 prompt
             }
+            return null; // 返回 null 表示未处理该 prompt，让 WebView 采用默认行为
         });
     }
 
@@ -68,16 +71,21 @@ public class WorldMapController implements Initializable {
      * JavaScriptReceiver 是一个内部类，用于从JavaScript接收回调。
      * 它的方法可以在JavaScript中通过 'app.methodName()' 调用。
      */
+    /** 
     public class JavaScriptReceiver {
-        public void getRecipeByRegionCode(String regionCode) {
-            System.out.println("从JavaScript接收到地区代码: " + regionCode);
-            // 这里可以根据地区代码加载并显示食谱数据
+        // 这个方法将在 JavaScript 中通过 `app.sendRegionCode(...)` 调用
+        public void sendRegionCode(String regionCode) {
+            System.out.println("DEBUG: WorldMapController JavaScriptReceiver: 从JavaScript接收到地区代码: " + regionCode);
+            // 在这里，你可以根据地区代码加载并显示食谱数据
+            // 确保在JavaFX应用程序线程上更新UI
             javafx.application.Platform.runLater(() -> {
-                selectedRegionPromptLabel.setText("接收到的区域代码 (JS): " + regionCode);
-                currentSelectedRegion = regionCode;
+                selectedRegionPromptLabel.setText("您选择了: " + regionCode + " 地区。"); // 更新Label以显示地区代码
+                currentSelectedRegion = regionCode; // 存储当前选定的地区
+                System.out.println("DEBUG: WorldMapController JavaScriptReceiver: UI 更新。currentSelectedRegion 已设置为 '" + currentSelectedRegion + "'. 实例哈希: " + WorldMapController.this.hashCode());
             });
         }
     }
+    */
 
     /**
      * 处理“查看该地区详情”按钮的点击事件。
@@ -85,17 +93,18 @@ public class WorldMapController implements Initializable {
      */
     @FXML
     private void handleViewRegionDetails() {
+        System.out.println("DEBUG: WorldMapController: handleViewRegionDetails 方法被调用。实例哈希: " + this.hashCode() + ". 点击时 currentSelectedRegion: '" + currentSelectedRegion + "'");
         if (currentSelectedRegion != null) {
             try {
-                // 假设 App 类有一个方法可以传递参数
+                System.out.println("DEBUG: WorldMapController: 尝试将 MainView 设置为根视图，并传递地区: " + currentSelectedRegion);
                 App.setRoot("MainView", currentSelectedRegion);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.err.println("无法加载MainView.fxml 并传递地区代码。");
+                System.err.println("WorldMapController: 无法加载MainView.fxml 并传递地区代码。");
             }
         } else {
-            System.out.println("请先选择一个地区。");
-            selectedRegionPromptLabel.setText("请点击地图区域选择一个地区！");
+            System.out.println("DEBUG: WorldMapController: 请先选择一个地区。(currentSelectedRegion 为 null)");
+            selectedRegionPromptLabel.setText("请点击地图区域选择一个地区！"); // 这行代码会重置标签文本
         }
     }
 
@@ -104,11 +113,12 @@ public class WorldMapController implements Initializable {
      */
     @FXML
     private void handleBackToMain() {
+        System.out.println("DEBUG: WorldMapController: handleBackToMain 方法被调用。实例哈希: " + this.hashCode());
         try {
             App.setRoot("MainView"); // 假设App类有一个setRoot方法用于切换FXML视图
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("无法加载MainView.fxml。");
+            System.err.println("WorldMapController: 无法加载MainView.fxml。");
         }
     }
 }

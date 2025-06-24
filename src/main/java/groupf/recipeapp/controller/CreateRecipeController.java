@@ -30,6 +30,7 @@ import groupf.recipeapp.dao.RecipeDAO;
 import groupf.recipeapp.dao.RecipeDAOImpl;
 import groupf.recipeapp.dao.RegionDAO; // 导入 RegionDAO
 import groupf.recipeapp.dao.RegionDAOImpl; // 导入 RegionDAOImpl
+import groupf.recipeapp.App; // 导入 App 类用于页面跳转
 
 
 public class CreateRecipeController {
@@ -324,4 +325,19 @@ public class CreateRecipeController {
             // 可选: 弹出错误提示
         }
     }
+
+    /**
+     * 处理“世界食谱”按钮的点击事件，跳转到世界地图页面。
+     */
+    @FXML
+    private void handleWorldCuisines() {
+        System.out.println("左侧导航按钮：World Cuisines 被点击，尝试跳转到世界地图页面。");
+        try {
+            App.setRoot("WorldMapView"); // 调用App类的setRoot方法跳转到WorldMapView
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("无法加载 WorldMapView.fxml。请检查文件是否存在且路径正确。");
+        }
+    }
+
 }

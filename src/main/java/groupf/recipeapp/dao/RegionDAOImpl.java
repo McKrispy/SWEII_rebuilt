@@ -3,8 +3,6 @@ package groupf.recipeapp.dao;
 
 import groupf.recipeapp.entity.Region;
 import groupf.recipeapp.util.DBUtil;
-import groupf.recipeapp.entity.Recipe;
-import groupf.recipeapp.dao.RegionDAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,7 +16,7 @@ public class RegionDAOImpl implements RegionDAO {
     @Override
     public List<Region> getAllRegions() throws SQLException {
         List<Region> regions = new ArrayList<>();
-        String sql = "SELECT region_id, name, code FROM Region"; // 确保列名与数据库匹配
+        String sql = "SELECT id, name, code FROM region"; // 确保列名与数据库匹配
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -54,7 +52,7 @@ public class RegionDAOImpl implements RegionDAO {
 
     @Override
     public Region getRegionById(int id) {
-        String sql = "SELECT * FROM Region WHERE region_id = ?";
+        String sql = "SELECT * FROM Region WHERE id = ?";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
@@ -70,8 +68,8 @@ public class RegionDAOImpl implements RegionDAO {
     }
 
     @Override
-    public Region getRegionByCode(String code) {
-        String sql = "SELECT * FROM Region WHERE code = ?";
+    public Region getRegionByCode(String code) throws SQLException { // 修复点：添加 throws SQLException
+        String sql = "SELECT id, name, code FROM Region WHERE code = ?";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, code);
@@ -79,16 +77,15 @@ public class RegionDAOImpl implements RegionDAO {
             if (rs.next()) {
                 return extractRegionFromResultSet(rs);
             }
-        } catch (SQLException e) {
-            System.err.println("Error getting region by code: " + e.getMessage());
-            e.printStackTrace();
         }
-        return null;
+        // 如果没有找到匹配的地区，或者发生 SQLException，直接让它抛出。
+        // 因为方法签名已经声明了 throws SQLException。
+        return null; // 如果未找到，则返回 null
     }
 
     private Region extractRegionFromResultSet(ResultSet rs) throws SQLException {
         // 修复点：使用带参数的构造函数
-        int id = rs.getInt("region_id");
+        int id = rs.getInt("id");
         String name = rs.getString("name");
         String code = rs.getString("code");
         return new Region(id, name, code);

@@ -11,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.net.URL;
+import java.sql.SQLException; // 导入 SQLException
 import java.util.List; // 修改为 java.util.List
 import java.util.ResourceBundle;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import javafx.scene.input.MouseEvent; // 新增：用于handleRecipeListClick方法
 import groupf.recipeapp.entity.Ingredient; // 新增：用于Recipe中的食材
 import groupf.recipeapp.entity.Instruction; // 新增：用于Recipe中的步骤
+import groupf.recipeapp.entity.InstructionEntry; 
 import groupf.recipeapp.entity.Region; // 新增：用于Recipe中的区域
 import javafx.scene.image.ImageView; // 新增导入
 import javafx.scene.image.Image; // 新增导入
@@ -76,15 +78,23 @@ public class MainViewController implements Initializable {
     // 新增：用于存储当前筛选的地区
     private String currentFilteredRegion = null;
 
+    // --- 核心修复：在构造函数中实例化 DAO ---
+    public MainViewController() {
+        System.out.println("DEBUG: MainViewController: 构造函数被调用。实例化 DAO。");
+        this.recipeDAO = new RecipeDAOImpl();
+        this.regionDAO = new RegionDAOImpl();
+    }
+
     /**
      * 从WorldMapView接收地区代码并进行食谱筛选。
      * 在App.java中调用。
      * @param regionCode 从WorldMapView传递过来的地区代码。
      */
     public void initData(String regionCode) {
-        System.out.println("MainViewController 接收到地区代码: " + regionCode);
+        System.out.println("DEBUG: MainViewController: initData 方法被调用。接收到地区代码: " + regionCode + ". 哈希: " + this.hashCode());
         this.currentFilteredRegion = regionCode;
         filterRecipesByRegion(regionCode); // 根据地区代码筛选食谱
+        System.out.println("DEBUG: MainViewController: initData 完成。currentFilteredRegion 设为: " + currentFilteredRegion + ". 哈希: " + this.hashCode());
     }
     
     
@@ -158,7 +168,7 @@ public class MainViewController implements Initializable {
 
     /**
      * 跳转到食谱详情页面的方法 (待实现)
-     * @param recipe 选中的食谱对象
+     * @param selectedRecipe
      * @param event 鼠标事件，用于获取当前舞台
      */
     private void navigateToRecipeDetail(Recipe selectedRecipe, MouseEvent event) {
@@ -175,6 +185,7 @@ public class MainViewController implements Initializable {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
+            showErrorDialog("无法打开食谱详情页面", e.getMessage()); // 添加错误提示
         }
     }
 
@@ -188,7 +199,7 @@ public class MainViewController implements Initializable {
         System.out.println("MainViewController is initializing...");
 
         // 实例化真正的DAO实现
-        this.recipeDAO = new RecipeDAOImpl();
+        // this.recipeDAO = new RecipeDAOImpl();
 
         // 1. 配置ListView如何显示Recipe对象
         setupListViewCellFactory();
@@ -197,8 +208,14 @@ public class MainViewController implements Initializable {
         // Deprecated: 
         // setupListViewSelectionListener();
 
-        // 3. 加载初始的食谱列表
-        loadAllRecipes();
+        // 3. 加载初始的食谱列表 (只有当没有地区筛选时才加载所有食谱)
+        if (currentFilteredRegion == null) {
+            System.out.println("DEBUG: MainViewController: initialize: currentFilteredRegion 为 null，加载所有食谱。");
+            loadAllRecipes();
+        } else {
+            System.out.println("DEBUG: MainViewController: initialize: currentFilteredRegion 已设置 ('" + currentFilteredRegion + "')，跳过加载所有食谱。");
+        }
+        System.out.println("DEBUG: MainViewController: initialize 方法完成。哈希: " + this.hashCode() + ". 最终 currentFilteredRegion: " + currentFilteredRegion);
     }
 
     /**
@@ -231,6 +248,7 @@ public class MainViewController implements Initializable {
         System.out.println("ResetRegion 按钮被点击。");
         currentFilteredRegion = null; // 清除地区筛选
         loadAllRecipes(); // 重新加载所有食谱
+        System.out.println("DEBUG: MainViewController: handleResetRegion 完成。currentFilteredRegion: " + currentFilteredRegion);
     }
 
     // --- 数据加载与显示方法 ---
@@ -239,26 +257,35 @@ public class MainViewController implements Initializable {
      * 加载并显示所有食谱。
      */
     private void loadAllRecipes() {
-        System.out.println("Loading all recipes...");
+        System.out.println("DEBUG: MainViewController: loadAllRecipes 被调用。哈希: " + this.hashCode());
         List<Recipe> recipes = recipeDAO.getAllRecipes(); // 使用DAO获取数据
 
         recipeListView.getItems().clear();
         recipeListView.getItems().addAll(recipes);
+        displayRecipePreview(null); // 清空预览
+        System.out.println("DEBUG: MainViewController: loadAllRecipes 完成。");
     }
 
     /**
      * 根据名称搜索食谱并显示结果。
      */
     private void searchRecipes(String name, String regionCode) {
-        System.out.println("Searching for recipes named: " + name + (regionCode != null ? " in region: " + regionCode : ""));
+        System.out.println("DEBUG: MainViewController: searchRecipes 被调用。名称: " + name + ", 地区: " + regionCode + ". 哈希: " + this.hashCode());
         List<Recipe> recipes;
         if (regionCode != null) {
             // 首先通过地区代码获取地区ID
-            Region region = regionDAO.getRegionByCode(regionCode);
-            if (region != null) {
-                recipes = recipeDAO.searchRecipesByNameAndRegion(name, region.getId());
-            } else {
-                recipes = recipeDAO.searchRecipesByName(name); // 如果地区不存在，则不进行地区筛选
+            try {
+                Region region = regionDAO.getRegionByCode(regionCode);
+                if (region != null) {
+                    recipes = recipeDAO.searchRecipesByNameAndRegion(name, region.getId());
+                } else {
+                    System.err.println("错误：未找到地区代码对应的地区: " + regionCode);
+                    recipes = recipeDAO.searchRecipesByName(name); // 如果地区不存在，则不进行地区筛选
+                }
+            } catch (SQLException e) {
+                System.err.println("数据库操作错误，无法根据地区代码获取地区或搜索食谱: " + e.getMessage());
+                e.printStackTrace();
+                recipes = recipeDAO.searchRecipesByName(name); // 发生错误时，回退到只按名称搜索
             }
         } else {
             recipes = recipeDAO.searchRecipesByName(name); // 使用DAO获取数据
@@ -267,23 +294,31 @@ public class MainViewController implements Initializable {
         recipeListView.getItems().clear();
         recipeListView.getItems().addAll(recipes);
         displayRecipePreview(null); // 清空预览
+        System.out.println("DEBUG: MainViewController: searchRecipes 完成。");
     }
 
     private void filterRecipesByRegion(String regionCode) {
-        System.out.println("Filtering recipes by region: " + regionCode);
+        System.out.println("DEBUG: MainViewController: filterRecipesByRegion 被调用。地区: " + regionCode + ". 哈希: " + this.hashCode());
         // 首先通过地区代码获取地区ID
-        Region region = regionDAO.getRegionByCode(regionCode);
         List<Recipe> recipes;
-        if (region != null) {
-            recipes = recipeDAO.getRecipesByRegion(region.getId()); // 假设 RecipeDAO 有此方法
-        } else {
-            System.err.println("错误：未找到地区代码对应的地区: " + regionCode);
-            recipes = recipeDAO.getAllRecipes(); // 如果地区代码无效，则显示所有食谱
+        try {
+            Region region = regionDAO.getRegionByCode(regionCode);
+            if (region != null) {
+                recipes = recipeDAO.getRecipesByRegion(region.getId());
+            } else {
+                System.err.println("错误：未找到地区代码对应的地区: " + regionCode);
+                recipes = recipeDAO.getAllRecipes(); // 如果地区代码无效，则显示所有食谱
+            }
+        } catch (SQLException e) {
+            System.err.println("数据库操作错误，无法根据地区代码获取地区或筛选食谱: " + e.getMessage());
+            e.printStackTrace();
+            recipes = recipeDAO.getAllRecipes(); // 发生错误时，回退到显示所有食谱
         }
         
         recipeListView.getItems().clear();
         recipeListView.getItems().addAll(recipes);
         displayRecipePreview(null); // 清空预览
+        System.out.println("DEBUG: MainViewController: filterRecipesByRegion 完成。");
     }
 
 
@@ -324,31 +359,19 @@ public class MainViewController implements Initializable {
         });
     }
         */
+
     @FXML
     private void handleSearchRecipes(ActionEvent event) {
         System.out.println("左侧导航按钮：Search Recipes 被点击");
-
+    
         try {
-            // 加载 CreateRecipeView.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("groupf/recipeapp/fxml/MainView.fxml"));
-            Parent createRecipeRoot = loader.load();
-            System.out.println("FXML 加载成功");
-
-            // 获取当前按钮所在的窗口
-            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // 创建新场景并设置到当前舞台
-            Scene createRecipeScene = new Scene(createRecipeRoot);
-            currentStage.setScene(createRecipeScene);
-            currentStage.setTitle("Create New Recipe");
-            System.out.println("跳转成功");
-
+            App.setRoot("MainView");
         } catch (IOException e) {
             e.printStackTrace();
-            showErrorDialog("无法打开创建食谱页面", e.getMessage());
+            showErrorDialog("无法打开主页面", e.getMessage());
         }
-
-        loadAllRecipes();
+    
+        // loadAllRecipes(); // 这里不应该再次加载，因为 App.setRoot("MainView") 会重新初始化 MainViewController
     }
 
     @FXML
