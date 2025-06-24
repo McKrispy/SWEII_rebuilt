@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/20" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.CreateRecipeController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.CreateRecipeController">
 
     <left>
         <VBox prefWidth="200.0" spacing="15.0" styleClass="sidebar" BorderPane.alignment="CENTER">
@@ -33,7 +33,7 @@
                     <VBox.margin>
                         <Insets top="12.0" />
                     </VBox.margin></Separator>
-                <Button maxWidth="Infinity" onAction="#handleSearchRecipes" styleClass="sidebar-button" text="Search Recipe" />
+                <Button maxWidth="Infinity" onAction="#handleSearchRecipes" styleClass="sidebar-button" text="Homepage" />
                 <Button maxWidth="Infinity" styleClass="sidebar-button-active" text="Create Recipe" />
                 <Button maxWidth="Infinity" styleClass="sidebar-button" text="World Cuisines" />
             </children>
