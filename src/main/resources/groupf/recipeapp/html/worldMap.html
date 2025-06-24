@@ -52,7 +52,8 @@
         // 这个函数负责将点击的区域代码发送到JavaFX应用程序
         function sendRegionToJavaFX(regionCode) {
             const selectedRegionInfo = document.getElementById('selected-region-info');
-            selectedRegionInfo.textContent = `您点击了：${regionCode} 区域。正在获取食谱...`;
+            // 更新显示信息为“您选择了X地区，查看该地区详情。”
+            selectedRegionInfo.textContent = `您选择了：${regionCode} 地区。`;
 
             // 通过改变 window.location.href 来发送地区代码到 JavaFX
             // 使用自定义协议 'app://'

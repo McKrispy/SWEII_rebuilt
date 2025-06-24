@@ -7,6 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.net.URL;
 import java.io.IOException; // 导入IOException
+import groupf.recipeapp.controller.MainViewController; // 导入 MainViewController
+
 
 public class App extends Application {
 
@@ -32,10 +34,32 @@ public class App extends Application {
     }
 
     /**
+     * 重载的静态方法，用于加载新的FXML文件并更新当前场景的根节点，
+     * 同时将一个参数传递给目标视图的控制器。
+     * 主要用于从 WorldMapController 传递地区代码给 MainViewController。
+     * @param fxml 要加载的FXML文件的名称（不带.fxml扩展名）。
+     * @param param 要传递给目标控制器（例如 MainViewController）的参数。
+     * @throws IOException 如果FXML文件无法加载。
+     */
+    public static void setRoot(String fxml, String param) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/groupf/recipeapp/fxml/" + fxml + ".fxml"));
+        Parent root = fxmlLoader.load();
+
+        // 如果加载的是 MainView，并且传递了地区代码，则将其传递给 MainViewController
+        if (fxml.equals("MainView") && param != null) {
+            MainViewController controller = fxmlLoader.getController();
+            if (controller != null) {
+                controller.initData(param); // 调用 MainViewController 中的方法来设置地区筛选
+            }
+        }
+        scene.setRoot(root);
+    }
+
+    /**
      * 辅助方法，用于加载指定的FXML文件并返回其根节点。
      * @param fxml 要加载的FXML文件的名称。
      * @return 加载的FXML文件的根Parent节点。
-     * @throws IOException 如果FXML文件无法加载。
+     * @throws IOException 如果FXML文件无法加载。\
      */
     private static Parent loadFXML(String fxml) throws IOException {
         String fxmlPath = "/groupf/recipeapp/fxml/" + fxml + ".fxml";

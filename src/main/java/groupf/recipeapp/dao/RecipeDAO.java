@@ -21,4 +21,19 @@ public interface RecipeDAO {
     List<Recipe> searchRecipesByName(String name);
 
     boolean insertRecipe(Recipe recipe);
+
+    /**
+     * 根据地区ID获取食谱列表。
+     * @param regionId 地区ID。
+     * @return 该地区的所有食谱列表。
+     */
+    List<Recipe> getRecipesByRegion(int regionId);
+
+    /**
+     * 根据食谱名称和地区ID搜索食谱。
+     * @param name 食谱名称的关键字。
+     * @param regionId 地区ID。
+     * @return 符合条件的食谱列表。
+     */
+    List<Recipe> searchRecipesByNameAndRegion(String name, int regionId);
 }

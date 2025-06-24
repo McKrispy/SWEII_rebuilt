@@ -35,6 +35,7 @@
                 <Button maxWidth="Infinity" onAction="#handleSearchRecipes" styleClass="sidebar-button" text="Homepage" />
                 <Button maxWidth="Infinity" onAction="#handleCreateNewRecipe" styleClass="sidebar-button" text="Create Recipe" />
                 <Button maxWidth="Infinity" onAction="#handleRecommendedDishes" styleClass="sidebar-button" text="World Cuisines" />
+                <Button maxWidth="Infinity" onAction="#handleResetRegion" styleClass="sidebar-button" text="Reset Region" />
             </children>
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -68,7 +69,7 @@
             <!-- 下方一分为二 -->
             <HBox spacing="15.0">
                 <!-- 左：菜谱列表 -->
-                <ListView fx:id="recipeListView" onMouseClicked="#handleRecipeListClick" prefWidth="250.0" HBox.hgrow="ALWAYS" />
+                <ListView fx:id="recipeListView" onMouseClicked="#handleRecipeListClick" prefWidth="150.0" HBox.hgrow="ALWAYS" />
 
                 <!-- 右：菜谱详情 -->
                 <ScrollPane fx:id="previewScrollPane" fitToWidth="true" HBox.hgrow="ALWAYS">
@@ -79,14 +80,19 @@
                                     <font>
                                         <Font name="System Bold" size="20.0" />
                                     </font>
+                           <VBox.margin>
+                              <Insets left="125.0" />
+                           </VBox.margin>
                                 </Label>
-                                <ImageView fx:id="previewImageView" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" />
+                                <ImageView fx:id="previewImageView" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+                           <VBox.margin>
+                              <Insets left="32.0" />
+                           </VBox.margin></ImageView>
                                 <Label styleClass="preview-section-title" text="Description:" />
                                 <Label fx:id="previewDescription" styleClass="preview-description" wrapText="true" />
-                                <Button fx:id="fullRecipeButton" text="Full Recipe" onAction="#handleShowFullRecipe"
-                                        styleClass="view-full-button" maxWidth="150.0">
+                                <Button fx:id="fullRecipeButton" maxWidth="150.0" onAction="#handleShowFullRecipe" styleClass="view-full-button" text="Full Recipe">
                                     <VBox.margin>
-                                        <Insets top="10.0" />
+                                        <Insets left="115.0" top="25.0" />
                                     </VBox.margin>
                                 </Button>
                             </children>

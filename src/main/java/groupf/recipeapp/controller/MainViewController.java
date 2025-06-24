@@ -2,6 +2,8 @@ package groupf.recipeapp.controller;
 
 import groupf.recipeapp.dao.RecipeDAO; // 新增导入
 import groupf.recipeapp.dao.RecipeDAOImpl; // 新增导入
+import groupf.recipeapp.dao.RegionDAO; // 新增导入 RegionDAO
+import groupf.recipeapp.dao.RegionDAOImpl;
 import groupf.recipeapp.entity.Recipe;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -66,7 +68,22 @@ public class MainViewController implements Initializable {
 
     // --- 后端服务接口 (现在使用真实的实现) ---
     private RecipeDAO recipeDAO; // 声明为接口类型
+    private RegionDAO regionDAO;
 
+    
+    // 新增：用于存储当前筛选的地区
+    private String currentFilteredRegion = null;
+
+    /**
+     * 从WorldMapView接收地区代码并进行食谱筛选。
+     * 在App.java中调用。
+     * @param regionCode 从WorldMapView传递过来的地区代码。
+     */
+    public void initData(String regionCode) {
+        System.out.println("MainViewController 接收到地区代码: " + regionCode);
+        this.currentFilteredRegion = regionCode;
+        filterRecipesByRegion(regionCode); // 根据地区代码筛选食谱
+    }
     
     
     @FXML
@@ -192,12 +209,27 @@ public class MainViewController implements Initializable {
         String searchText = searchTextField.getText().trim();
 
         if (searchText.isEmpty()) {
-            // 如果搜索框为空，重新加载所有食谱
-            loadAllRecipes();
+            // 如果搜索框为空，重新加载所有食谱 (或根据当前地区筛选)
+            if (currentFilteredRegion != null) {
+                filterRecipesByRegion(currentFilteredRegion);
+            } else {
+                loadAllRecipes();
+            }
         } else {
-            // 否则，根据关键字进行搜索
-            searchRecipes(searchText);
+            // 否则，根据关键字进行搜索 (如果设置了地区筛选，只在当前地区内搜索)
+            // 修复点：这里原来只传了 searchText
+            searchRecipes(searchText, currentFilteredRegion);
         }
+    }
+
+    /**
+     * 清除地区筛选，并显示所有食谱。
+     */
+    @FXML
+    private void handleResetRegion() {
+        System.out.println("ResetRegion 按钮被点击。");
+        currentFilteredRegion = null; // 清除地区筛选
+        loadAllRecipes(); // 重新加载所有食谱
     }
 
     // --- 数据加载与显示方法 ---
@@ -216,12 +248,41 @@ public class MainViewController implements Initializable {
     /**
      * 根据名称搜索食谱并显示结果。
      */
-    private void searchRecipes(String name) {
-        System.out.println("Searching for recipes named: " + name);
-        List<Recipe> recipes = recipeDAO.searchRecipesByName(name); // 使用DAO获取数据
+    private void searchRecipes(String name, String regionCode) {
+        System.out.println("Searching for recipes named: " + name + (regionCode != null ? " in region: " + regionCode : ""));
+        List<Recipe> recipes;
+        if (regionCode != null) {
+            // 首先通过地区代码获取地区ID
+            Region region = regionDAO.getRegionByCode(regionCode);
+            if (region != null) {
+                recipes = recipeDAO.searchRecipesByNameAndRegion(name, region.getId());
+            } else {
+                recipes = recipeDAO.searchRecipesByName(name); // 如果地区不存在，则不进行地区筛选
+            }
+        } else {
+            recipes = recipeDAO.searchRecipesByName(name); // 使用DAO获取数据
+        }
 
         recipeListView.getItems().clear();
         recipeListView.getItems().addAll(recipes);
+        displayRecipePreview(null); // 清空预览
+    }
+
+    private void filterRecipesByRegion(String regionCode) {
+        System.out.println("Filtering recipes by region: " + regionCode);
+        // 首先通过地区代码获取地区ID
+        Region region = regionDAO.getRegionByCode(regionCode);
+        List<Recipe> recipes;
+        if (region != null) {
+            recipes = recipeDAO.getRecipesByRegion(region.getId()); // 假设 RecipeDAO 有此方法
+        } else {
+            System.err.println("错误：未找到地区代码对应的地区: " + regionCode);
+            recipes = recipeDAO.getAllRecipes(); // 如果地区代码无效，则显示所有食谱
+        }
+        
+        recipeListView.getItems().clear();
+        recipeListView.getItems().addAll(recipes);
+        displayRecipePreview(null); // 清空预览
     }
 
 

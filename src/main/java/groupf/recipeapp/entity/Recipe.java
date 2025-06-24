@@ -13,6 +13,7 @@ public class Recipe {
     private Region region;
     
     //constructor
+    public Recipe() {}
 
     public Recipe(String name, int servings) {
 		super();

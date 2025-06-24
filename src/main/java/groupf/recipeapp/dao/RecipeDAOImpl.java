@@ -78,25 +78,24 @@ public class RecipeDAOImpl implements RecipeDAO {
 
     /**
      * 从 ResultSet 创建 Recipe 对象。
+     * 统一使用这个方法来映射 ResultSet 到 Recipe。
      */
     private Recipe createRecipeFromResultSet(ResultSet rs) throws SQLException {
-        Recipe recipe = new Recipe(
-                rs.getString("name"),
-                rs.getInt("servings")
-        );
-        recipe.setId(rs.getInt("id"));
+        // 使用无参构造函数
+        Recipe recipe = new Recipe();
+        // 确保字段名与 SQL 查询中的别名或实际列名匹配
+        recipe.setId(rs.getInt("id")); // 之前是 "recipe_id"
+        recipe.setName(rs.getString("name"));
         recipe.setDescription(rs.getString("description"));
+        recipe.setServings(rs.getInt("servings")); // 修复：setServingSize -> setServings, "serving_size" -> "servings"
         recipe.setImagePath(rs.getString("imagePath"));
 
         int regionId = rs.getInt("region_id");
-        if (!rs.wasNull()) { // 正确调用
-
+        if (!rs.wasNull()) { // 检查 region_id 是否为 NULL
             String regionName = rs.getString("region_name");
             String regionCode = rs.getString("region_code");
             Region region = new Region(regionId, regionName, regionCode);
-            region.setId(regionId);
-            region.setName(rs.getString("region_name"));
-            region.setCode(rs.getString("region_code"));
+            // 这里不需要重复设置 region.setId/setName/setCode，因为构造函数已经设置了
             recipe.setRegion(region);
         }
 
@@ -131,7 +130,63 @@ public class RecipeDAOImpl implements RecipeDAO {
         }
     }
 
+    @Override
+    public List<Recipe> getRecipesByRegion(int regionId) {
+        List<Recipe> recipes = new ArrayList<>();
+        // 确保这里的列名与 createRecipeFromResultSet 中使用的匹配
+        String sql = "SELECT r.id, r.name, r.description, r.servings, r.imagePath, " +
+                     "reg.id AS region_id, reg.name AS region_name, reg.code AS region_code " +
+                     "FROM recipe r LEFT JOIN region reg ON r.region_id = reg.id WHERE r.region_id = ?";
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connection = DBUtil.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, regionId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                recipes.add(createRecipeFromResultSet(rs)); // 统一调用 createRecipeFromResultSet
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting recipes by region: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            DBUtil.closeConnection(connection);
+            closeResources(ps, rs);
+        }
+        return recipes;
+    }
 
+    @Override
+    public List<Recipe> searchRecipesByNameAndRegion(String name, int regionId) {
+        List<Recipe> recipes = new ArrayList<>();
+        // 确保这里的列名与 createRecipeFromResultSet 中使用的匹配
+        String sql = "SELECT r.id, r.name, r.description, r.servings, r.imagePath, " +
+                     "reg.id AS region_id, reg.name AS region_name, reg.code AS region_code " +
+                     "FROM recipe r LEFT JOIN region reg ON r.region_id = reg.id " +
+                     "WHERE r.name LIKE ? AND r.region_id = ?";
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connection = DBUtil.getConnection();
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, "%" + name + "%");
+            ps.setInt(2, regionId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                recipes.add(createRecipeFromResultSet(rs)); // 统一调用 createRecipeFromResultSet
+            }
+        } catch (SQLException e) {
+            System.err.println("Error searching recipes by name and region: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            DBUtil.closeConnection(connection);
+            closeResources(ps, rs);
+        }
+        return recipes;
+    }
 
     /**
      * 关闭 PreparedStatement 和 ResultSet。

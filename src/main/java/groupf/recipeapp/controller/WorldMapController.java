@@ -17,9 +17,11 @@ public class WorldMapController implements Initializable {
     private WebView worldMapWebView;
 
     @FXML
-    private Label countryCodeLabel;
+    private Label selectedRegionPromptLabel;
 
     private WebEngine webEngine;
+    private String currentSelectedRegion = null; 
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -46,14 +48,10 @@ public class WorldMapController implements Initializable {
                 String regionCode = newValue.substring("app://regionCode/".length());
                 System.out.println("从URL接收到地区代码: " + regionCode);
 
-                // 在这里，你可以根据地区代码加载并显示食谱数据
-                // 例如，查询数据库或调用API
-                // 确保在JavaFX应用程序线程上更新UI
+                // 更新UI显示
                 javafx.application.Platform.runLater(() -> {
-                    // 更新Label以显示地区代码
-                    countryCodeLabel.setText("最近点击的区域代码: " + regionCode); // 可以考虑把 countryCodeLabel 改名
-                    // 实际应用中，你可能会在这里导航到另一个视图或加载食谱列表
-                    // 例如：loadRecipesForRegion(regionCode);
+                    selectedRegionPromptLabel.setText("您选择了 " + regionCode + " 地区。");
+                    currentSelectedRegion = regionCode; // 存储当前选定的地区
                 });
 
                 // 为了防止WebView试图真正导航到这个“假”URL，
@@ -71,17 +69,33 @@ public class WorldMapController implements Initializable {
      * 它的方法可以在JavaScript中通过 'app.methodName()' 调用。
      */
     public class JavaScriptReceiver {
-        // 将 "getRecipeByCountryCode" 改为 "getRecipeByRegionCode"，并修改参数
         public void getRecipeByRegionCode(String regionCode) {
             System.out.println("从JavaScript接收到地区代码: " + regionCode);
-            // 在这里，你可以根据地区代码加载并显示食谱数据
-            // 例如，可以查询数据库或调用API
-            // 为了演示，我们只更新一个Label
+            // 这里可以根据地区代码加载并显示食谱数据
             javafx.application.Platform.runLater(() -> {
-                countryCodeLabel.setText("接收到的区域代码 (JS): " + regionCode); // 可以考虑把 countryCodeLabel 改名
-                // 实际应用中，你可能会在这里导航到另一个视图或加载食谱列表
-                // 例如：loadRecipesForRegion(regionCode);
+                selectedRegionPromptLabel.setText("接收到的区域代码 (JS): " + regionCode);
+                currentSelectedRegion = regionCode;
             });
+        }
+    }
+
+    /**
+     * 处理“查看该地区详情”按钮的点击事件。
+     * 将选定的地区代码传递给 MainView。
+     */
+    @FXML
+    private void handleViewRegionDetails() {
+        if (currentSelectedRegion != null) {
+            try {
+                // 假设 App 类有一个方法可以传递参数
+                App.setRoot("MainView", currentSelectedRegion);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("无法加载MainView.fxml 并传递地区代码。");
+            }
+        } else {
+            System.out.println("请先选择一个地区。");
+            selectedRegionPromptLabel.setText("请点击地图区域选择一个地区！");
         }
     }
 
