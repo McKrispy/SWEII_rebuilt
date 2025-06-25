@@ -32,6 +32,8 @@ import javafx.scene.control.Button; // 新增导入
 import javafx.scene.control.Alert; // 新增导入
 import java.sql.SQLException; // 新增导入
 import java.util.Comparator; // 新增导入
+import java.util.regex.Matcher; // 新增导入
+import java.util.regex.Pattern; // 新增导入
 
 public class FullRecipeController {
 
@@ -75,6 +77,15 @@ public class FullRecipeController {
     @FXML
     private Button deleteButton; // 新增 FXML 字段
 
+    @FXML
+    private Button scaleServingButton; // 新增 FXML 字段
+
+    @FXML
+    private HBox scaleInputBox; // 新增 FXML 字段
+
+    @FXML
+    private TextField scaleMultiplierField; // 新增 FXML 字段
+
     private Recipe recipe;
     private boolean isEditing = false; // 新增：跟踪是否处于编辑模式
     private RecipeDAO recipeDAO; // 新增：用于数据库操作
@@ -83,6 +94,7 @@ public class FullRecipeController {
     // 新增：用于存储动态创建的食材编辑行和步骤编辑行的引用
     private List<IngredientEditRow> ingredientEditRows = new ArrayList<>();
     private List<InstructionEditRow> instructionEditRows = new ArrayList<>();
+    private List<InstructionEntry> originalIngredients; // 新增：存储原始食材列表
 
     // 内部类：用于封装食材编辑行的UI控件和数据
     private static class IngredientEditRow {
@@ -161,19 +173,34 @@ public class FullRecipeController {
     private void loadAndDisplayIngredients() {
         ingredientListBox.getChildren().clear();
         InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
-        List<InstructionEntry> entries = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId());
+        originalIngredients = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId()); // 加载并存储原始数据
 
-        if (entries == null || entries.isEmpty()) {
+        if (originalIngredients == null || originalIngredients.isEmpty()) {
             ingredientListBox.getChildren().add(new Label("No ingredients found."));
             System.out.println("⚠️ 没有找到配料指令！");
         } else {
-            int index = 1; // 修正为更合适的索引
-            for (InstructionEntry entry : entries) {
-                String ingredientName = (entry.getIngredient() != null) ? entry.getIngredient().getName() : "Unknown Ingredient";
-                String displayText = "Ingredient " + index++ + ": " + entry.getQuantity() + " " + entry.getUnit() + " " + ingredientName;
-                ingredientListBox.getChildren().add(new Label(displayText));
-                System.out.println("➡️ 显示指令：" + displayText);
-            }
+            displayIngredientsWithScale(1); // 默认显示原始数量（缩放倍数为1）
+        }
+    }
+
+    /**
+     * Helper to display ingredients with a given scale factor.
+     * @param scaleFactor 缩放倍数。
+     */
+    private void displayIngredientsWithScale(int scaleFactor) {
+        ingredientListBox.getChildren().clear();
+        if (originalIngredients == null || originalIngredients.isEmpty()) {
+            ingredientListBox.getChildren().add(new Label("No ingredients found."));
+            return;
+        }
+
+        int index = 1;
+        for (InstructionEntry entry : originalIngredients) {
+            String ingredientName = (entry.getIngredient() != null) ? entry.getIngredient().getName() : "Unknown Ingredient";
+            // 乘以缩放倍数并显示
+            String displayText = "Ingredient " + index++ + ": " + (entry.getQuantity() * scaleFactor) + " " + entry.getUnit() + " " + ingredientName;
+            ingredientListBox.getChildren().add(new Label(displayText));
+            System.out.println("➡️ 显示指令 (缩放后)：" + displayText);
         }
     }
 
@@ -235,6 +262,9 @@ public class FullRecipeController {
         addIngredientButtonBox.setVisible(editing);
         addInstructionButtonBox.setVisible(editing);
 
+        // 缩放按钮和输入框的可见性：编辑模式下隐藏，显示模式下显示
+        scaleServingButton.setVisible(!editing);
+        scaleInputBox.setVisible(false); // 无论如何，切换模式时隐藏缩放输入框
 
         // 处理食材和步骤的动态内容
         if (editing) {
@@ -640,7 +670,40 @@ public class FullRecipeController {
             }
         });
     }
-    
+
+    @FXML
+    private void handleScaleServingButton() {
+        // 切换缩放输入框的可见性
+        scaleInputBox.setVisible(!scaleInputBox.isVisible());
+        // 每次点击缩放按钮，重置输入框内容
+        scaleMultiplierField.setText("");
+        // 如果隐藏了，确保显示回原始数据
+        if (!scaleInputBox.isVisible()) {
+            displayIngredientsWithScale(1);
+        }
+    }
+
+    @FXML
+    private void handleConfirmScale() {
+        String multiplierText = scaleMultiplierField.getText();
+        if (multiplierText == null || multiplierText.trim().isEmpty()) {
+            showErrorDialog("输入错误", "请输入一个有效的缩放倍数。");
+            return;
+        }
+
+        try {
+            int scaleFactor = Integer.parseInt(multiplierText.trim());
+            if (scaleFactor <= 0) {
+                showErrorDialog("输入错误", "缩放倍数必须是正整数。");
+                return;
+            }
+            displayIngredientsWithScale(scaleFactor);
+            scaleInputBox.setVisible(false); // 确认后隐藏输入框
+        } catch (NumberFormatException e) {
+            showErrorDialog("输入错误", "缩放倍数必须是有效的整数。");
+        }
+    }
+
     /**
      * 显示信息对话框的通用方法。
      */

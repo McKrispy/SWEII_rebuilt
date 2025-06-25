@@ -24,9 +24,18 @@
     <TextField fx:id="editRecipeNameField" style="-fx-font-size: 20px; -fx-font-weight: bold;" visible="false" />
 
     <!-- 份量 -->
-    <Label text="Serving Amount:" style="-fx-font-weight: bold;"/>
-    <Label fx:id="previewServing" />
-    <TextField fx:id="editServingField" visible="false" />
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="Serving Amount:" style="-fx-font-weight: bold;"/>
+        <Label fx:id="previewServing" />
+        <TextField fx:id="editServingField" visible="false" />
+        <Button fx:id="scaleServingButton" text="Scale" onAction="#handleScaleServingButton"/>
+    </HBox>
+
+    <!-- 缩放输入区域 -->
+    <HBox fx:id="scaleInputBox" alignment="CENTER_LEFT" spacing="10" visible="false">
+        <TextField fx:id="scaleMultiplierField" promptText="Enter multiplier" prefWidth="100"/>
+        <Button text="Confirm" onAction="#handleConfirmScale"/>
+    </HBox>
 
     <ImageView fx:id="previewImageView" fitHeight="200.0" fitWidth="300.0" preserveRatio="true" />
 
