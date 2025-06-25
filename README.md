@@ -108,7 +108,7 @@ Maven 将编译并启动 JavaFX 应用。
 
 ## 技术栈
 
-  - Java 17
-  - JavaFX 21
+  - Jdk 24
+  - JavaFX 20
   - Maven
   - MySQL 8.0
