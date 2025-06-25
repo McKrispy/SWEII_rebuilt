@@ -29,10 +29,12 @@ public class EntityTest {
         kungPaoChicken.addIngredient(new InstructionEntry(chili, 10, "pieces"));
         
         // Add instructions
+        /* 
         kungPaoChicken.addInstruction(new Instruction(1, "Dice chicken breast, marinate with cooking wine and starch for 10 mins"));
         kungPaoChicken.addInstruction(new Instruction(2, "Fry peanuts until golden, set aside"));
         kungPaoChicken.addInstruction(new Instruction(3, "Stir-fry dried chili, add chicken until color changes"));
         kungPaoChicken.addInstruction(new Instruction(4, "Add seasonings and peanuts, stir well"));
+        */
 
         // Recipe 2: Spaghetti
         Recipe spaghetti = new Recipe("Classic Spaghetti", 4);
@@ -44,9 +46,11 @@ public class EntityTest {
         spaghetti.addIngredient(new InstructionEntry(tomato, 500, "grams"));
         
         // Add instructions
+        /* 
         spaghetti.addInstruction(new Instruction(1, "Cook pasta in boiling water for 8-10 minutes"));
         spaghetti.addInstruction(new Instruction(2, "Chop tomatoes, sauté with olive oil to make sauce"));
         spaghetti.addInstruction(new Instruction(3, "Mix cooked pasta with tomato sauce"));
+        */
 
         // Recipe 3: Vegetable Salad
         Recipe salad = new Recipe("Healthy Vegetable Salad", 2);
@@ -59,9 +63,11 @@ public class EntityTest {
         salad.addIngredient(new InstructionEntry(tomato, 2, "pieces"));
         
         // Add instructions
+        /*
         salad.addInstruction(new Instruction(1, "Wash and chop all vegetables"));
         salad.addInstruction(new Instruction(2, "Add olive oil, lemon juice and salt to taste"));
         salad.addInstruction(new Instruction(3, "Toss gently and serve"));
+        */
 
         // 4. Test functionality (same as before)
         System.out.println("========== All Recipes ==========");

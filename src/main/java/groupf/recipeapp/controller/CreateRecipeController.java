@@ -265,7 +265,8 @@ public class CreateRecipeController {
                 TextField field = (TextField) hbox.getChildren().get(0);
                 String stepDescription = field.getText().trim();
                 if (!stepDescription.isEmpty()) { // 避免添加空步骤
-                    recipe.addInstruction(new Instruction(stepNumber++, stepDescription));
+                    // 这里需要传递 recipe 对象
+                    recipe.addInstruction(new Instruction(stepNumber++, stepDescription, recipe));
                 }
             }
         }

@@ -45,8 +45,9 @@ public class IngredientDAOImpl implements IngredientDAO {
         return list;
     }
 
+    // 重命名 addIngredient 为 insertIngredient
     @Override
-    public boolean addIngredient(Ingredient ingredient) {
+    public boolean insertIngredient(Ingredient ingredient) throws SQLException { // 添加 throws SQLException
         String sql = "INSERT INTO ingredient (name) VALUES (?)";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -60,9 +61,7 @@ public class IngredientDAOImpl implements IngredientDAO {
                 }
                 return true;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } // try-with-resources 会自动关闭 conn 和 stmt
         return false;
     }
 

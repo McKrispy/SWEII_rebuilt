@@ -5,6 +5,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?> <!-- 新增导入 -->
+<?import javafx.scene.control.TextArea?> <!-- 新增导入 -->
+<?import javafx.scene.layout.HBox?>
+
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -15,22 +19,43 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
+    <!-- 食谱名称 -->
     <Label fx:id="previewRecipeName" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+    <TextField fx:id="editRecipeNameField" style="-fx-font-size: 20px; -fx-font-weight: bold;" visible="false" />
 
+    <!-- 份量 -->
     <Label text="Serving Amount:" style="-fx-font-weight: bold;"/>
     <Label fx:id="previewServing" />
+    <TextField fx:id="editServingField" visible="false" />
 
     <ImageView fx:id="previewImageView" fitHeight="200.0" fitWidth="300.0" preserveRatio="true" />
 
+    <!-- 描述 -->
     <Label text="Description:" style="-fx-font-weight: bold;"/>
     <Label fx:id="previewDescription" wrapText="true" maxWidth="400.0"/>
+    <TextArea fx:id="editDescriptionArea" wrapText="true" maxWidth="400.0" visible="false" prefRowCount="5" />
+
 
     <Label text="Ingredients:" style="-fx-font-weight: bold;"/>
     <VBox fx:id="ingredientListBox" spacing="5.0" />
+    <!-- 新增：添加食材按钮容器 -->
+    <HBox fx:id="addIngredientButtonBox" alignment="CENTER" spacing="10" visible="false">
+        <Button text="Add Ingredient" onAction="#handleAddIngredient" />
+    </HBox>
+
 
     <Label text="Instructions:" style="-fx-font-weight: bold;"/>
     <VBox fx:id="stepsListBox" spacing="5.0" />
+    <!-- 新增：添加步骤按钮容器 -->
+    <HBox fx:id="addInstructionButtonBox" alignment="CENTER" spacing="10" visible="false">
+        <Button text="Add Instruction" onAction="#handleAddInstruction" />
+    </HBox>
 
-    <Button text="Close" onAction="#handleCloseWindow"/>
+    <!-- 按钮区域 -->
+    <VBox alignment="CENTER" spacing="10">
+        <Button fx:id="editCommitButton" text="Edit" onAction="#handleEditCommit"/>
+        <Button text="Close" onAction="#handleCloseWindow"/>
+        <Button fx:id="deleteButton" text="Delete Recipe" onAction="#handleDeleteRecipe" style="-fx-background-color: #f08080; -fx-text-fill: white;"/>
+    </VBox>
 
 </VBox>

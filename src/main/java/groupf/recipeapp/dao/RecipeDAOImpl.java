@@ -188,6 +188,95 @@ public class RecipeDAOImpl implements RecipeDAO {
         return recipes;
     }
 
+    @Override
+    public boolean updateRecipe(Recipe recipe) throws SQLException {
+        String sql = "UPDATE recipe SET name = ?, description = ?, servings = ?, imagePath = ?, region_id = ? WHERE id = ?";
+        Connection connection = null;
+        PreparedStatement ps = null;
+
+        try {
+            connection = DBUtil.getConnection();
+            ps = connection.prepareStatement(sql);
+
+            ps.setString(1, recipe.getName());
+            ps.setString(2, recipe.getDescription());
+            ps.setInt(3, recipe.getServings());
+            ps.setString(4, recipe.getImagePath());
+            if (recipe.getRegion() != null) {
+                ps.setInt(5, recipe.getRegion().getId());
+            } else {
+                ps.setNull(5, java.sql.Types.INTEGER); // 没有地区则设置为NULL
+            }
+            ps.setInt(6, recipe.getId()); // 根据ID更新
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } finally {
+            DBUtil.closeConnection(connection);
+            closeResources(ps, null); // 这里 ResultSet 为 null
+        }
+    }
+
+    @Override
+    public boolean deleteRecipe(int recipeId) throws SQLException {
+        Connection connection = null;
+        PreparedStatement ps = null;
+        boolean success = false;
+
+        try {
+            connection = DBUtil.getConnection();
+            connection.setAutoCommit(false); // 开始事务
+
+            // 1. 删除与此食谱相关的所有 InstructionEntry
+            String deleteEntriesSql = "DELETE FROM instruction_entry WHERE recipe_id = ?";
+            ps = connection.prepareStatement(deleteEntriesSql);
+            ps.setInt(1, recipeId);
+            ps.executeUpdate();
+            ps.close(); // 关闭当前的 PreparedStatement
+
+            // 2. 删除与此食谱相关的所有 Instruction
+            String deleteInstructionsSql = "DELETE FROM instruction WHERE recipe_id = ?";
+            ps = connection.prepareStatement(deleteInstructionsSql);
+            ps.setInt(1, recipeId);
+            ps.executeUpdate();
+            ps.close(); // 关闭当前的 PreparedStatement
+
+            // 3. 删除食谱本身
+            String deleteRecipeSql = "DELETE FROM recipe WHERE id = ?";
+            ps = connection.prepareStatement(deleteRecipeSql);
+            ps.setInt(1, recipeId);
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                connection.commit(); // 提交事务
+                success = true;
+            } else {
+                connection.rollback(); // 回滚事务
+            }
+        } catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.rollback(); // 发生错误时回滚事务
+                } catch (SQLException ex) {
+                    System.err.println("Error rolling back transaction: " + ex.getMessage());
+                }
+            }
+            System.err.println("Error deleting recipe with ID " + recipeId + ": " + e.getMessage());
+            throw e; // 重新抛出异常，让上层处理
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.setAutoCommit(true); // 恢复自动提交模式
+                } catch (SQLException e) {
+                    System.err.println("Error setting auto commit to true: " + e.getMessage());
+                }
+            }
+            closeResources(ps, null);
+            DBUtil.closeConnection(connection);
+        }
+        return success;
+    }
+
     /**
      * 关闭 PreparedStatement 和 ResultSet。
      */
