@@ -19,7 +19,7 @@
     <left>
         <VBox prefWidth="200.0" spacing="15.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
-                <Label styleClass="sidebar-title" text="Cookbook">
+                <Label styleClass="sidebar-title" text="Navigation">
                     <font>
                         <Font name="System Bold" size="24.0" />
                     </font>
@@ -83,11 +83,11 @@
                                 </Label>
                                 <ImageView fx:id="previewImageView" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
                            </ImageView>
-                                <Label styleClass="preview-section-title" text="Description:"/>
-                                <Label fx:id="previewDescription" styleClass="preview-description" wrapText="true"/>
+                                <Label styleClass="preview-section-title" text="Description:" />
+                                <Label fx:id="previewDescription" styleClass="preview-description" wrapText="true" />
                                 <Button fx:id="fullRecipeButton" maxWidth="150.0" onAction="#handleShowFullRecipe" styleClass="view-full-button" text="Full Recipe">
                                     <VBox.margin>
-                                        <Insets left="115.0" top="25.0" />
+                                        <Insets left="15.0" top="25.0" />
                                     </VBox.margin>
                                 </Button>
                             </children>

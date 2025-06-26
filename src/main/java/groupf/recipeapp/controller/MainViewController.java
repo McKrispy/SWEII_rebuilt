@@ -219,7 +219,7 @@ public class MainViewController implements Initializable {
     }
 
     /**
-     * 处理“搜索”按钮的点击事件。
+     * 处理"搜索"按钮的点击事件。
      * 从文本框获取输入，并调用相应的数据加载方法。
      */
     @FXML
@@ -379,18 +379,10 @@ public class MainViewController implements Initializable {
         System.out.println("左侧导航按钮：Create New Recipe 被点击");
 
         try {
-            // 加载 CreateRecipeView.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/CreateRecipeView.fxml"));
-            Parent createRecipeRoot = loader.load();
-            System.out.println("FXML 加载成功");
-
-            // 获取当前按钮所在的窗口
-            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // 创建新场景并设置到当前舞台
-            Scene createRecipeScene = new Scene(createRecipeRoot);
-            currentStage.setScene(createRecipeScene);
-            currentStage.setTitle("Create New Recipe");
+            App.setRoot("CreateRecipeView"); // 使用 App 类的 setRoot 方法跳转到 CreateRecipeView
+            // 注意：App.setRoot 已经处理了 Stage 和 Scene 的设置，所以下面的代码不再需要
+            // Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            // currentStage.setTitle("Create New Recipe");
             System.out.println("跳转成功");
 
         } catch (IOException e) {

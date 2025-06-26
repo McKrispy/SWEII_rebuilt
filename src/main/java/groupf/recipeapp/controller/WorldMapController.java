@@ -57,7 +57,7 @@ public class WorldMapController implements Initializable {
                 System.out.println("DEBUG: WorldMapController: 从 prompt 消息解析到地区代码: '" + regionCode + "'. 实例哈希: " + this.hashCode());
 
                 javafx.application.Platform.runLater(() -> {
-                    selectedRegionPromptLabel.setText("您选择了: " + regionCode + " 地区。");
+                    selectedRegionPromptLabel.setText("You choose: " + regionCode + " region.");
                     currentSelectedRegion = regionCode; // 存储当前选定的地区
                     System.out.println("DEBUG: WorldMapController: UI 更新。currentSelectedRegion 已设置为 '" + currentSelectedRegion + "'. 实例哈希: " + this.hashCode());
                 });
@@ -88,7 +88,7 @@ public class WorldMapController implements Initializable {
     */
 
     /**
-     * 处理“查看该地区详情”按钮的点击事件。
+     * 处理"查看该地区详情"按钮的点击事件。
      * 将选定的地区代码传递给 MainView。
      */
     @FXML

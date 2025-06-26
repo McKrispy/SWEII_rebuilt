@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.web.WebView?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
 
-<BorderPane xmlns="http://javafx.com/javafx/20"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="groupf.recipeapp.controller.WorldMapController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.WorldMapController">
     <!-- DEBUG LABEL: 用于确认 FXML 视图是否已加载 -->
     <top>
-        <Label text="世界地图视图已加载!" style="-fx-font-size: 24px; -fx-text-fill: green;" BorderPane.alignment="CENTER">
+        <Label style="-fx-font-size: 24px; -fx-text-fill: green;" text="WorldMap Load Successfully" BorderPane.alignment="CENTER">
             <padding>
-                <Insets top="10" bottom="10"/>
+                <Insets bottom="10" top="10" />
             </padding>
+         <font>
+            <Font size="10.0" />
+         </font>
         </Label>
     </top>
     <center>
-        <WebView fx:id="worldMapWebView" prefHeight="700.0" prefWidth="1000.0"/>
+        <WebView fx:id="worldMapWebView" prefHeight="700.0" prefWidth="1000.0" />
     </center>
     <bottom>
         <VBox alignment="CENTER" spacing="10.0">
             <padding>
-                <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <HBox alignment="CENTER" spacing="10.0">
-                <Label fx:id="selectedRegionPromptLabel" text="点击地图区域以显示食谱信息"/>
+                <Label fx:id="selectedRegionPromptLabel" text="Click on the map to see the recipes" />
             </HBox>
             <HBox alignment="CENTER" spacing="10.0">
-                <!-- 添加“查看该地区详情”按钮 -->
-                <Button text="查看该地区详情" onAction="#handleViewRegionDetails"/>
+                <!-- 添加"查看该地区详情"按钮 -->
+                <Button onAction="#handleViewRegionDetails" text="View Region Details" />
                 <!-- 保留返回主菜单按钮 -->
-                <Button text="返回主菜单"/>
+                <Button onAction="#handleBackToMain" text="Back Home" />
             </HBox>
         </VBox>
     </bottom>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>世界食谱地图</title>
+    <title>World Recipe Map</title>
     <meta charset="UTF-8">
     <style>
         body {
@@ -31,8 +31,7 @@
 </head>
 <body>
 
-    <h1>世界食谱地图</h1>
-    <div id="selected-region-info">点击地图区域以显示食谱信息</div>
+    <div id="selected-region-info">Click on the map to see the recipes</div>
 
     <!-- 引用您的世界地图图片，并关联一个图像映射 -->
     <img id="map-image" src="../images/world_map.png" alt="世界地图" usemap="#worldMap">
@@ -52,7 +51,7 @@
         // 这个函数负责将点击的区域代码发送到JavaFX应用程序
         function sendRegionToJavaFX(regionCode) {
             const selectedRegionInfo = document.getElementById('selected-region-info');
-            selectedRegionInfo.textContent = `您选择了：${regionCode} 地区。`;
+            selectedRegionInfo.textContent = `You choose：${regionCode} region。`;
 
             // 核心修复：使用 window.prompt() 来向 JavaFX 发送数据
             // 我们约定消息格式为 "regionCode:XYZ"

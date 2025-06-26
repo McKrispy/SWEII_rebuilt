@@ -310,17 +310,7 @@ public class CreateRecipeController {
         System.out.println("左侧导航按钮：Search Recipes 被点击");
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/groupf/recipeapp/fxml/MainView.fxml"));
-            Parent root = loader.load();  // 加载FXML文件
-
-            // 获取当前窗口Stage
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-
-            // 创建一个新的Scene并设置到Stage
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.setTitle("Recipe List");
-
+            App.setRoot("MainView"); // 使用 App 类的 setRoot 方法跳转到 MainView
         } catch (IOException e) {
             e.printStackTrace();
             // 可选: 弹出错误提示
@@ -328,7 +318,7 @@ public class CreateRecipeController {
     }
 
     /**
-     * 处理“世界食谱”按钮的点击事件，跳转到世界地图页面。
+     * 处理"世界食谱"按钮的点击事件，跳转到世界地图页面。
      */
     @FXML
     private void handleWorldCuisines() {

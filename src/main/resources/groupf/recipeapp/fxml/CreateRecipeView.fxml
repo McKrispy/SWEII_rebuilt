@@ -21,7 +21,7 @@
     <left>
         <VBox prefWidth="200.0" spacing="15.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
-                <Label styleClass="sidebar-title" text="Cookbook">
+                <Label styleClass="sidebar-title" text="Navigation">
                     <font>
                         <Font name="System Bold" size="24.0" />
                     </font>

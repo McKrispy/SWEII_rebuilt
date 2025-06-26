@@ -31,7 +31,10 @@ public class App extends Application {
      */
     public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
-        // 诊断性代码：确保舞台可见并位于最前面
+        // 修复：确保 primaryStage 始终显示 App.scene
+        if (primaryStage != null && primaryStage.getScene() != scene) {
+            primaryStage.setScene(scene);
+        }
         if (primaryStage != null) {
             primaryStage.show();
             primaryStage.toFront();
@@ -58,6 +61,10 @@ public class App extends Application {
             }
         }
         scene.setRoot(root);
+        // 修复：确保 primaryStage 始终显示 App.scene
+        if (primaryStage != null && primaryStage.getScene() != scene) {
+            primaryStage.setScene(scene);
+        }
         // 诊断性代码：确保舞台可见并位于最前面
         if (primaryStage != null) {
             primaryStage.show();
