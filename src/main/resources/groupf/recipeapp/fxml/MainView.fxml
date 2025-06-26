@@ -74,22 +74,17 @@
                 <!-- 右：菜谱详情 -->
                 <ScrollPane fx:id="previewScrollPane" fitToWidth="true" HBox.hgrow="ALWAYS">
                     <content>
-                        <VBox fx:id="recipeDetailsVBox" prefHeight="386.0" prefWidth="333.0" spacing="10.0" styleClass="preview-content">
+                        <VBox fx:id="recipeDetailsVBox" alignment="TOP_CENTER" prefHeight="386.0" prefWidth="333.0" spacing="10.0" styleClass="preview-content">
                             <children>
                                 <Label fx:id="previewRecipeName" styleClass="preview-recipe-name" text="Recipe Name" wrapText="true">
                                     <font>
                                         <Font name="System Bold" size="20.0" />
                                     </font>
-                           <VBox.margin>
-                              <Insets left="125.0" />
-                           </VBox.margin>
                                 </Label>
                                 <ImageView fx:id="previewImageView" fitHeight="200.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
-                           <VBox.margin>
-                              <Insets left="32.0" />
-                           </VBox.margin></ImageView>
-                                <Label styleClass="preview-section-title" text="Description:" />
-                                <Label fx:id="previewDescription" styleClass="preview-description" wrapText="true" />
+                           </ImageView>
+                                <Label styleClass="preview-section-title" text="Description:"/>
+                                <Label fx:id="previewDescription" styleClass="preview-description" wrapText="true"/>
                                 <Button fx:id="fullRecipeButton" maxWidth="150.0" onAction="#handleShowFullRecipe" styleClass="view-full-button" text="Full Recipe">
                                     <VBox.margin>
                                         <Insets left="115.0" top="25.0" />
