@@ -114,4 +114,16 @@ public class InstructionEntryDAOImpl implements InstructionEntryDAO {
         }
     }
 
+    @Override
+    public boolean deleteInstructionEntriesByRecipeId(int recipeId) throws SQLException {
+        String sql = "DELETE FROM instructionentry WHERE recipe_id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, recipeId);
+            int affectedRows = ps.executeUpdate();
+            return affectedRows >= 0; // 删除0条或多条都算成功
+        }
+    }
+
+
 }

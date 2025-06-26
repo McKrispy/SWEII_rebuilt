@@ -138,8 +138,13 @@ public class Recipe {
 	public void setRegion(Region region) {
 		this.region = region;
 	}
-    
- 
+
+    public List<InstructionEntry> getInstructionEntries() {
+        return ingredients;
+    }
+
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Recipe: " + name + "\n");

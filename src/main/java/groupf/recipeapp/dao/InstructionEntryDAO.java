@@ -30,5 +30,6 @@ public interface InstructionEntryDAO {
      * @return 如果删除成功则返回 true，否则返回 false。
      * @throws SQLException 如果发生数据库访问错误。
      */
+    boolean deleteInstructionEntriesByRecipeId(int recipeId) throws SQLException;
     boolean deleteInstructionEntry(int recipeId, int ingredientId) throws SQLException;
 }

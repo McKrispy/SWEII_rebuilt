@@ -1,5 +1,7 @@
 package groupf.recipeapp.dao;
 
+import groupf.recipeapp.entity.Instruction;
+import groupf.recipeapp.entity.InstructionEntry;
 import groupf.recipeapp.entity.Recipe;
 import groupf.recipeapp.entity.Region;
 import groupf.recipeapp.util.DBUtil;
@@ -106,7 +108,7 @@ public class RecipeDAOImpl implements RecipeDAO {
      *
      * 插入菜谱，传入数据库
      * */
-    @Override
+ /*   @Override
     public boolean insertRecipe(Recipe recipe) {
         String sql = "INSERT INTO recipe (name, description, servings, imagePath, region_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBUtil.getConnection();
@@ -129,7 +131,7 @@ public class RecipeDAOImpl implements RecipeDAO {
             return false;
         }
     }
-
+*/
     @Override
     public List<Recipe> getRecipesByRegion(int regionId) {
         List<Recipe> recipes = new ArrayList<>();
@@ -216,6 +218,99 @@ public class RecipeDAOImpl implements RecipeDAO {
             closeResources(ps, null); // 这里 ResultSet 为 null
         }
     }
+
+    @Override
+    public boolean insertRecipe(Recipe recipe) {
+        String insertRecipeSQL = "INSERT INTO recipe (name, description, servings, imagePath, region_id) VALUES (?, ?, ?, ?, ?)";
+        String insertInstructionSQL = "INSERT INTO instruction (recipe_id, stepNumber, description) VALUES (?, ?, ?)";
+        String insertInstructionEntrySQL = "INSERT INTO instructionentry (recipe_id, ingredient_id, quantity, unit) VALUES (?, ?, ?, ?)";
+        String findIngredientSQL = "SELECT id FROM ingredient WHERE name = ?";
+        String insertIngredientSQL = "INSERT INTO ingredient (name) VALUES (?)";
+
+        try (Connection conn = DBUtil.getConnection()) {
+            conn.setAutoCommit(false); // 手动控制事务
+
+            // 插入 recipe
+            int recipeId;
+            try (PreparedStatement ps = conn.prepareStatement(insertRecipeSQL, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, recipe.getName());
+                ps.setString(2, recipe.getDescription());
+                ps.setInt(3, recipe.getServings());
+                ps.setString(4, recipe.getImagePath());
+                ps.setInt(5, recipe.getRegion().getId());
+                ps.executeUpdate();
+
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        recipeId = rs.getInt(1);
+                        recipe.setId(recipeId); // 更新对象内的 id
+                    } else {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            // 插入 instructions
+            try (PreparedStatement ps = conn.prepareStatement(insertInstructionSQL)) {
+                for (Instruction ins : recipe.getInstructions()) {
+                    ps.setInt(1, recipeId);
+                    ps.setInt(2, ins.getStepNumber());
+                    ps.setString(3, ins.getDescription());
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+
+            // 插入 InstructionEntry（含 ingredient 查找或创建）
+            try (
+                    PreparedStatement findIngredientStmt = conn.prepareStatement(findIngredientSQL);
+                    PreparedStatement insertIngredientStmt = conn.prepareStatement(insertIngredientSQL, Statement.RETURN_GENERATED_KEYS);
+                    PreparedStatement insertEntryStmt = conn.prepareStatement(insertInstructionEntrySQL)
+            ) {
+                for (InstructionEntry entry : recipe.getInstructionEntries()) {
+                    int ingredientId = -1;
+                    String ingredientName = entry.getIngredient().getName().trim();
+
+                    // 1. 查找 ingredient
+                    findIngredientStmt.setString(1, ingredientName);
+                    try (ResultSet rs = findIngredientStmt.executeQuery()) {
+                        if (rs.next()) {
+                            ingredientId = rs.getInt("id");
+                        } else {
+                            // 2. 不存在就插入新 ingredient
+                            insertIngredientStmt.setString(1, ingredientName);
+                            insertIngredientStmt.executeUpdate();
+                            try (ResultSet rs2 = insertIngredientStmt.getGeneratedKeys()) {
+                                if (rs2.next()) {
+                                    ingredientId = rs2.getInt(1);
+                                } else {
+                                    conn.rollback();
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. 插入 instructionentry
+                    insertEntryStmt.setInt(1, recipeId);
+                    insertEntryStmt.setInt(2, ingredientId);
+                    insertEntryStmt.setDouble(3, entry.getQuantity());
+                    insertEntryStmt.setString(4, entry.getUnit());
+                    insertEntryStmt.addBatch();
+                }
+                insertEntryStmt.executeBatch();
+            }
+
+            conn.commit();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     @Override
     public boolean deleteRecipe(int recipeId) throws SQLException {

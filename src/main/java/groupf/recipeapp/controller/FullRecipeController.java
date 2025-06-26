@@ -25,13 +25,12 @@ import groupf.recipeapp.dao.RecipeDAOImpl; // 新增导入
 import groupf.recipeapp.dao.IngredientDAO; // 新增导入 IngredientDAO
 import groupf.recipeapp.dao.IngredientDAOImpl;
 
-import java.util.ArrayList; // 新增导入
-import java.util.List;
+import java.util.*;
+
 import javafx.event.ActionEvent; // 新增导入
 import javafx.scene.control.Button; // 新增导入
 import javafx.scene.control.Alert; // 新增导入
 import java.sql.SQLException; // 新增导入
-import java.util.Comparator; // 新增导入
 import java.util.regex.Matcher; // 新增导入
 import java.util.regex.Pattern; // 新增导入
 
@@ -289,7 +288,7 @@ public class FullRecipeController {
     /**
      * 加载现有食材并以可编辑字段显示。
      */
-    private void loadIngredientsForEditing() {
+  /*  private void loadIngredientsForEditing() {
         InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
         List<InstructionEntry> entries = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId());
 
@@ -298,6 +297,20 @@ public class FullRecipeController {
                 addIngredientEditRow(entry); // 为现有食材添加编辑行
             }
         }
+    }*/
+    private void loadIngredientsForEditing() {
+        ingredientListBox.getChildren().clear();
+        ingredientEditRows.clear();
+
+        if (originalIngredients != null && !originalIngredients.isEmpty()) {
+            for (InstructionEntry entry : originalIngredients) {
+                addIngredientEditRow(entry);
+            }
+        } else {
+            ingredientListBox.getChildren().add(new Label("No ingredients found."));
+        }
+        System.out.println("🔢 加载食材编辑行数: " + ingredientEditRows.size());
+
     }
 
     /**
@@ -433,6 +446,26 @@ public class FullRecipeController {
             return;
         }
 
+        // === ✅ 加入比例缩放逻辑 ===
+        int oldServings = recipe.getServings(); // 原始份量
+        if (oldServings > 0 && newServings > 0 && oldServings != newServings) {
+            double scale = (double) newServings / oldServings;
+            System.out.println("🔁 份量变化比例：" + scale);
+
+            for (IngredientEditRow row : ingredientEditRows) {
+                String quantityStr = row.quantityField.getText();
+                if (quantityStr == null || quantityStr.isEmpty()) continue;
+
+                try {
+                    int originalQuantity = Integer.parseInt(quantityStr);
+                    int scaledQuantity = (int) Math.round(originalQuantity * scale);
+                    row.quantityField.setText(String.valueOf(scaledQuantity));
+                } catch (NumberFormatException e) {
+                    System.err.println("无法缩放数量：" + quantityStr);
+                }
+            }
+        }
+
         // 2. 更新 Recipe 对象
         recipe.setName(newName);
         recipe.setDescription(newDescription);
@@ -468,7 +501,7 @@ public class FullRecipeController {
      * 更新食材和步骤到数据库。
      * 这是一个更复杂的方法，需要处理增、删、改。
      */
-    private void updateIngredientsAndInstructions() throws SQLException {
+   /* private void updateIngredientsAndInstructions() throws SQLException {
         InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
         InstructionDAO instructionDAO = new InstructionDAOImpl();
 
@@ -568,10 +601,82 @@ public class FullRecipeController {
             } else {
                 System.out.println("🔄 更新食材条目：" + entry.getIngredient().getName() + " (Recipe ID: " + entry.getRecipe().getId() + ", Ingredient ID: " + entry.getIngredient().getId() + ")");
             }
+        }*/
+
+/*
+测试后旧的食材数据会全删掉，上面注释掉的是会全删掉
+* 为了试验改serving功能以下代码只能成功新增食材，不对旧食材进行操作
+* */
+    private void updateIngredientsAndInstructions() throws SQLException {
+        InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
+        IngredientDAO ingredientDAO = new IngredientDAOImpl();
+        InstructionDAO instructionDAO = new InstructionDAOImpl();
+
+        // === 1. 更新食材（InstructionEntry） ===
+        List<InstructionEntry> existingEntries = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId());
+        Map<String, InstructionEntry> existingMap = new HashMap<>();
+        for (InstructionEntry entry : existingEntries) {
+            String key = entry.getIngredient().getId() + "_" + entry.getUnit().trim().toLowerCase();
+            existingMap.put(key, entry);
+        }
+
+        for (IngredientEditRow row : ingredientEditRows) {
+            String quantityStr = row.quantityField.getText();
+            String unit = row.unitField.getText().trim().toLowerCase();
+            String ingredientName = row.ingredientNameField.getText().trim();
+
+            if (quantityStr.isEmpty() || unit.isEmpty() || ingredientName.isEmpty()) {
+                System.err.println("跳过无效的食材行：数量、单位或名称为空。");
+                continue;
+            }
+
+            int quantity;
+            try {
+                quantity = Integer.parseInt(quantityStr);
+            } catch (NumberFormatException e) {
+                System.err.println("无效的数量：" + quantityStr);
+                continue;
+            }
+
+            // 获取或插入 Ingredient
+            Ingredient ingredient = ingredientDAO.getIngredientByName(ingredientName);
+            if (ingredient == null) {
+                ingredient = new Ingredient(ingredientName);
+                if (!ingredientDAO.insertIngredient(ingredient)) {
+                    System.err.println("无法插入新食材：" + ingredientName);
+                    continue;
+                }
+                ingredient = ingredientDAO.getIngredientByName(ingredientName);
+                if (ingredient == null) {
+                    System.err.println("插入后无法获取ID：" + ingredientName);
+                    continue;
+                }
+            }
+
+            String key = ingredient.getId() + "_" + unit;
+
+            InstructionEntry entry = new InstructionEntry();
+            entry.setRecipe(recipe);
+            entry.setIngredient(ingredient);
+            entry.setUnit(unit);
+            entry.setQuantity(quantity);
+
+            if (existingMap.containsKey(key)) {
+                // 更新
+                instructionEntryDAO.updateInstructionEntry(entry);
+                System.out.println("🔄 更新食材：" + ingredient.getName());
+            } else {
+                // 插入
+                instructionEntryDAO.insertInstructionEntry(entry);
+                System.out.println("➕ 新增食材：" + ingredient.getName());
+            }
         }
 
 
-        // 2. 处理步骤 (Instruction)
+
+
+    // 2. 处理步骤 (Instruction)
+        InstructionDAO InstructionDAO = new InstructionDAOImpl();
         List<Instruction> oldInstructions = instructionDAO.getInstructionsByRecipeId(recipe.getId());
         List<Instruction> newOrUpdatedInstructions = new ArrayList<>();
 
