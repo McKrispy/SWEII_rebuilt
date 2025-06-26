@@ -15,7 +15,7 @@
 
 <BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.MainViewController">
 
-    <!-- 左侧导航栏 -->
+    <!-- left navigation bar -->
     <left>
         <VBox prefWidth="200.0" spacing="15.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
@@ -43,10 +43,10 @@
         </VBox>
     </left>
 
-    <!-- 右侧主体 -->
+    <!-- right main body -->
     <center>
         <VBox spacing="15.0" BorderPane.alignment="CENTER">
-            <!-- 顶部标题 + 搜索栏 -->
+            <!-- top title + search bar -->
             <VBox alignment="CENTER" spacing="10.0">
                 <children>
                     <Label styleClass="header-title" text="Welcome to Digital Cookbook">
@@ -66,12 +66,12 @@
                 </children>
             </VBox>
 
-            <!-- 下方一分为二 -->
+            <!-- bottom split into two -->
             <HBox spacing="15.0">
-                <!-- 左：菜谱列表 -->
+                <!-- left: recipe list -->
                 <ListView fx:id="recipeListView" onMouseClicked="#handleRecipeListClick" prefWidth="150.0" HBox.hgrow="ALWAYS" />
 
-                <!-- 右：菜谱详情 -->
+                <!-- right: recipe details -->
                 <ScrollPane fx:id="previewScrollPane" fitToWidth="true" HBox.hgrow="ALWAYS">
                     <content>
                         <VBox fx:id="recipeDetailsVBox" alignment="TOP_CENTER" prefHeight="386.0" prefWidth="333.0" spacing="10.0" styleClass="preview-content">

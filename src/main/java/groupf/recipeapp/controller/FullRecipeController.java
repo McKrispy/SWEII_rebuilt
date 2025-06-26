@@ -5,10 +5,10 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.TextArea; // 新增导入
-import javafx.scene.control.TextField; // 新增导入
-import javafx.scene.layout.HBox; // 新增导入 HBox
-import javafx.geometry.Pos; // 新增导入 Pos
+import javafx.scene.control.TextArea; 
+import javafx.scene.control.TextField; 
+import javafx.scene.layout.HBox; 
+import javafx.geometry.Pos; 
 
 import groupf.recipeapp.entity.Recipe;
 import groupf.recipeapp.entity.InstructionEntry;
@@ -20,19 +20,19 @@ import groupf.recipeapp.dao.InstructionEntryDAO;
 import groupf.recipeapp.dao.InstructionEntryDAOImpl;
 import groupf.recipeapp.dao.InstructionDAO;
 import groupf.recipeapp.dao.InstructionDAOImpl;
-import groupf.recipeapp.dao.RecipeDAO; // 新增导入
-import groupf.recipeapp.dao.RecipeDAOImpl; // 新增导入
-import groupf.recipeapp.dao.IngredientDAO; // 新增导入 IngredientDAO
+import groupf.recipeapp.dao.RecipeDAO; 
+import groupf.recipeapp.dao.RecipeDAOImpl; 
+import groupf.recipeapp.dao.IngredientDAO; 
 import groupf.recipeapp.dao.IngredientDAOImpl;
 
 import java.util.*;
 
-import javafx.event.ActionEvent; // 新增导入
-import javafx.scene.control.Button; // 新增导入
-import javafx.scene.control.Alert; // 新增导入
-import java.sql.SQLException; // 新增导入
-import java.util.regex.Matcher; // 新增导入
-import java.util.regex.Pattern; // 新增导入
+import javafx.event.ActionEvent; 
+import javafx.scene.control.Button; 
+import javafx.scene.control.Alert; 
+import java.sql.SQLException; 
+import java.util.regex.Matcher; 
+import java.util.regex.Pattern; 
 
 public class FullRecipeController {
 
@@ -40,14 +40,14 @@ public class FullRecipeController {
     private Label previewRecipeName;
 
     @FXML
-    private TextField editRecipeNameField; // 新增 FXML 字段
+    private TextField editRecipeNameField; 
 
 
     @FXML
     private Label previewDescription;
 
     @FXML
-    private TextArea editDescriptionArea; // 新增 FXML 字段
+    private TextArea editDescriptionArea; 
 
     @FXML
     private ImageView previewImageView;
@@ -62,46 +62,45 @@ public class FullRecipeController {
     private Label previewServing;
 
     @FXML
-    private TextField editServingField; // 新增 FXML 字段
+    private TextField editServingField; 
 
 
     @FXML
-    private Button editCommitButton; // 新增 FXML 字段
+    private Button editCommitButton; 
 
     @FXML
-    private HBox addIngredientButtonBox; // 新增 FXML 字段
+    private HBox addIngredientButtonBox; 
     @FXML
-    private HBox addInstructionButtonBox; // 新增 FXML 字段
+    private HBox addInstructionButtonBox; 
 
     @FXML
-    private Button deleteButton; // 新增 FXML 字段
+    private Button deleteButton; 
 
     @FXML
-    private Button scaleServingButton; // 新增 FXML 字段
+    private Button scaleServingButton; 
 
     @FXML
-    private HBox scaleInputBox; // 新增 FXML 字段
+    private HBox scaleInputBox; 
 
     @FXML
-    private TextField scaleMultiplierField; // 新增 FXML 字段
+    private TextField scaleMultiplierField; 
 
     private Recipe recipe;
-    private boolean isEditing = false; // 新增：跟踪是否处于编辑模式
-    private RecipeDAO recipeDAO; // 新增：用于数据库操作
-    private IngredientDAO ingredientDAO; // 新增：用于食材数据库操作
+    private boolean isEditing = false; 
+    private RecipeDAO recipeDAO; 
+    private IngredientDAO ingredientDAO; 
 
-    // 新增：用于存储动态创建的食材编辑行和步骤编辑行的引用
+    // store the references of the dynamically created ingredient edit rows and instruction edit rows
     private List<IngredientEditRow> ingredientEditRows = new ArrayList<>();
     private List<InstructionEditRow> instructionEditRows = new ArrayList<>();
-    private List<InstructionEntry> originalIngredients; // 新增：存储原始食材列表
+    private List<InstructionEntry> originalIngredients; // store the original ingredient list
 
-    // 内部类：用于封装食材编辑行的UI控件和数据
+    // inner class: used to encapsulate the UI components and data of the ingredient edit row
     private static class IngredientEditRow {
-        InstructionEntry originalEntry; // 关联的原始 InstructionEntry 对象 (如果存在)
+        InstructionEntry originalEntry; // the original InstructionEntry object
         TextField quantityField;
         TextField unitField;
-        TextField ingredientNameField; // 存储食材名称的 TextField
-        // Button removeButton; // 引用按钮，如果需要对按钮本身进行操作
+        TextField ingredientNameField; // store the ingredient name
 
         public IngredientEditRow(InstructionEntry originalEntry, TextField quantityField, TextField unitField, TextField ingredientNameField) {
             this.originalEntry = originalEntry;
@@ -111,12 +110,11 @@ public class FullRecipeController {
         }
     }
 
-    // 内部类：用于封装步骤编辑行的UI控件和数据
+    // inner class: used to encapsulate the UI components and data of the instruction edit row
     private static class InstructionEditRow {
-        Instruction originalInstruction; // 关联的原始 Instruction 对象 (如果存在)
-        Label stepNumberLabel; // 步骤编号的Label
-        TextArea descriptionArea; // 步骤描述的TextArea
-        // Button removeButton; // 引用按钮，如果需要对按钮本身进行操作
+        Instruction originalInstruction; // the original Instruction object
+        Label stepNumberLabel; // the label of the step number
+        TextArea descriptionArea; // the text area of the step description
 
         public InstructionEditRow(Instruction originalInstruction, Label stepNumberLabel, TextArea descriptionArea) {
             this.originalInstruction = originalInstruction;
@@ -128,40 +126,40 @@ public class FullRecipeController {
     // 构造函数：初始化DAO
     public FullRecipeController() {
         this.recipeDAO = new RecipeDAOImpl();
-        this.ingredientDAO = new IngredientDAOImpl(); // 初始化 IngredientDAO
+        this.ingredientDAO = new IngredientDAOImpl(); // initialize IngredientDAO
     }
 
     public void setRecipe(Recipe recipe) {
         this.recipe = recipe;
 
         if (recipe == null) {
-            System.err.println("❌ 传入的 recipe 是 null！");
+            System.err.println("The input recipe is null!");
             return;
         }
 
-        System.out.println("📝 加载食谱：" + recipe.getName() + "，ID = " + recipe.getId());
+        System.out.println("Loading recipe: " + recipe.getName() + ", ID = " + recipe.getId());
 
-        // 显示基本信息
+        // display the basic information
         previewRecipeName.setText(recipe.getName());
         previewDescription.setText(recipe.getDescription());
         previewServing.setText(String.valueOf(recipe.getServings()));
 
-        // 初始化时处于显示模式
+        // initialize in display mode
         setEditingMode(false);
 
-        // 显示图片
+        // display the image
         if (recipe.getImagePath() != null && !recipe.getImagePath().isEmpty()) {
             try {
                 Image image = new Image(getClass().getResourceAsStream(recipe.getImagePath()));
                 previewImageView.setImage(image);
-                System.out.println("🖼️ 图片加载成功：" + recipe.getImagePath());
+                System.out.println("Image loaded successfully: " + recipe.getImagePath());
             } catch (Exception e) {
                 previewImageView.setImage(null);
-                System.err.println("⚠️ 图片加载失败：" + recipe.getImagePath() + "，错误信息：" + e.getMessage());
+                System.err.println("Image loaded failed: " + recipe.getImagePath() + ", error message: " + e.getMessage());
             }
         }
 
-        // 加载并显示食材和步骤（初始为只读模式）
+        // load and display the ingredients and steps (initial in read-only mode)
         loadAndDisplayIngredients();
         loadAndDisplayInstructions();
     }
@@ -172,19 +170,19 @@ public class FullRecipeController {
     private void loadAndDisplayIngredients() {
         ingredientListBox.getChildren().clear();
         InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
-        originalIngredients = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId()); // 加载并存储原始数据
+        originalIngredients = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId()); // load and store the original data
 
         if (originalIngredients == null || originalIngredients.isEmpty()) {
             ingredientListBox.getChildren().add(new Label("No ingredients found."));
-            System.out.println("⚠️ 没有找到配料指令！");
+            System.out.println("No ingredients found!");
         } else {
-            displayIngredientsWithScale(1); // 默认显示原始数量（缩放倍数为1）
+            displayIngredientsWithScale(1); // default display the original quantity (scale factor is 1)
         }
     }
 
     /**
      * Helper to display ingredients with a given scale factor.
-     * @param scaleFactor 缩放倍数。
+     * @param scaleFactor the scale factor.
      */
     private void displayIngredientsWithScale(int scaleFactor) {
         ingredientListBox.getChildren().clear();
@@ -196,10 +194,10 @@ public class FullRecipeController {
         int index = 1;
         for (InstructionEntry entry : originalIngredients) {
             String ingredientName = (entry.getIngredient() != null) ? entry.getIngredient().getName() : "Unknown Ingredient";
-            // 乘以缩放倍数并显示
+            // multiply by the scale factor and display
             String displayText = "Ingredient " + index++ + ": " + (entry.getQuantity() * scaleFactor) + " " + entry.getUnit() + " " + ingredientName;
             ingredientListBox.getChildren().add(new Label(displayText));
-            System.out.println("➡️ 显示指令 (缩放后)：" + displayText);
+            System.out.println("Display instruction (scaled): " + displayText);
         }
     }
 
@@ -211,93 +209,80 @@ public class FullRecipeController {
         InstructionDAO instructionDAO = new InstructionDAOImpl();
         List<Instruction> instructions = instructionDAO.getInstructionsByRecipeId(recipe.getId());
 
-        // 按照步骤编号排序
+        // sort by the step number
         instructions.sort(Comparator.comparingInt(Instruction::getStepNumber));
 
         if (instructions == null || instructions.isEmpty()) {
             stepsListBox.getChildren().add(new Label("No instructions found."));
-            System.out.println("⚠️ 没有找到制作步骤！");
+            System.out.println("No instructions found!");
         } else {
             for (Instruction instruction : instructions) {
                 String stepText = "Step " + instruction.getStepNumber() + ": " + instruction.getDescription();
                 stepsListBox.getChildren().add(new Label(stepText));
-                System.out.println("➡️ 显示步骤：" + stepText);
+                System.out.println("Display step: " + stepText);
             }
         }
     }
 
     /**
-     * 切换编辑和显示模式的UI状态。
-     * @param editing true表示进入编辑模式，false表示进入显示模式。
+     * switch the UI state between edit and display mode.
+     * @param editing true means enter edit mode, false means enter display mode.
      */
     private void setEditingMode(boolean editing) {
         this.isEditing = editing;
 
-        // 切换食谱名称的显示/编辑
+        // switch the display/edit mode of the recipe name
         previewRecipeName.setVisible(!editing);
         editRecipeNameField.setVisible(editing);
         if (editing) {
             editRecipeNameField.setText(recipe.getName());
         }
 
-        // 切换描述的显示/编辑
+        // switch the display/edit mode of the description
         previewDescription.setVisible(!editing);
         editDescriptionArea.setVisible(editing);
         if (editing) {
             editDescriptionArea.setText(recipe.getDescription());
         }
 
-        // 切换份量的显示/编辑
+        // switch the display/edit mode of the serving
         previewServing.setVisible(!editing);
         editServingField.setVisible(editing);
         if (editing) {
             editServingField.setText(String.valueOf(recipe.getServings()));
         }
 
-        // 切换按钮文本
+        // switch the button text
         editCommitButton.setText(editing ? "Commit" : "Edit");
 
-        // 切换“添加”按钮容器的可见性
+        // switch the visibility of the "add" button container
         addIngredientButtonBox.setVisible(editing);
         addInstructionButtonBox.setVisible(editing);
 
-        // 缩放按钮和输入框的可见性：编辑模式下隐藏，显示模式下显示
+        // the visibility of the scale button and input box: hidden in edit mode, shown in display mode
         scaleServingButton.setVisible(!editing);
-        scaleInputBox.setVisible(false); // 无论如何，切换模式时隐藏缩放输入框
+        scaleInputBox.setVisible(false); // hidden in both modes
 
-        // 处理食材和步骤的动态内容
+        // handle the dynamic content of the ingredients and steps
         if (editing) {
-            // 清空当前显示，并用可编辑字段填充
+            // clear the current display, and fill with editable fields
             ingredientListBox.getChildren().clear();
-            ingredientEditRows.clear(); // 清除现有引用，避免重复
+            ingredientEditRows.clear(); // clear the existing references, avoid duplication
             loadIngredientsForEditing();
 
             stepsListBox.getChildren().clear();
-            instructionEditRows.clear(); // 清除现有引用
+            instructionEditRows.clear(); // clear the existing references
             loadInstructionsForEditing();
 
         } else {
-            // 恢复到只读标签显示
+            // restore to read-only label display
             loadAndDisplayIngredients();
             loadAndDisplayInstructions();
-            ingredientEditRows.clear(); // 清除编辑行引用
-            instructionEditRows.clear(); // 清除编辑行引用
+            ingredientEditRows.clear(); // clear the edit row references
+            instructionEditRows.clear(); // clear the edit row references
         }
     }
 
-    /**
-     * 加载现有食材并以可编辑字段显示。
-     */
-  /*  private void loadIngredientsForEditing() {
-        InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
-        List<InstructionEntry> entries = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId());
-
-        if (entries != null) {
-            for (InstructionEntry entry : entries) {
-                addIngredientEditRow(entry); // 为现有食材添加编辑行
-            }
-        }
-    }*/
     private void loadIngredientsForEditing() {
         ingredientListBox.getChildren().clear();
         ingredientEditRows.clear();
@@ -309,33 +294,33 @@ public class FullRecipeController {
         } else {
             ingredientListBox.getChildren().add(new Label("No ingredients found."));
         }
-        System.out.println("🔢 加载食材编辑行数: " + ingredientEditRows.size());
+        System.out.println("Loaded " + ingredientEditRows.size() + " ingredient edit rows.");
 
     }
 
     /**
-     * 加载现有步骤并以可编辑字段显示。
+     * load the existing steps and display them with editable fields.
      */
     private void loadInstructionsForEditing() {
         InstructionDAO instructionDAO = new InstructionDAOImpl();
         List<Instruction> instructions = instructionDAO.getInstructionsByRecipeId(recipe.getId());
 
-        // 按照步骤编号排序
+        // sort by the step number
         instructions.sort(Comparator.comparingInt(Instruction::getStepNumber));
 
         if (instructions != null) {
             for (Instruction instruction : instructions) {
-                addInstructionEditRow(instruction); // 为现有步骤添加编辑行
+                addInstructionEditRow(instruction); // add the edit row for the existing step
             }
         }
     }
 
     /**
-     * 动态添加一个可编辑的食材行。
-     * 如果 entry 为 null，则添加一个空的行（用于新增食材）。
+     * dynamically add an editable ingredient row.
+     * if the entry is null, add an empty row (for new ingredient).
      */
     private void addIngredientEditRow(InstructionEntry entry) {
-        HBox row = new HBox(10); // 控件之间的间距
+        HBox row = new HBox(10); // the spacing between the components
         row.setAlignment(Pos.CENTER_LEFT);
 
         TextField quantityField = new TextField(entry != null ? String.valueOf(entry.getQuantity()) : "");
@@ -352,26 +337,26 @@ public class FullRecipeController {
 
         Button removeButton = new Button("Delete");
         removeButton.setOnAction(e -> {
-            ingredientListBox.getChildren().remove(row); // 从UI移除
-            ingredientEditRows.removeIf(r -> r.quantityField == quantityField && r.unitField == unitField && r.ingredientNameField == ingredientNameField); // 从列表中移除引用
+            ingredientListBox.getChildren().remove(row); // remove from the UI
+            ingredientEditRows.removeIf(r -> r.quantityField == quantityField && r.unitField == unitField && r.ingredientNameField == ingredientNameField); // remove the reference from the list
         });
 
         row.getChildren().addAll(quantityField, unitField, ingredientNameField, removeButton);
         ingredientListBox.getChildren().add(row);
 
-        // 存储对这个编辑行的引用
+        // store the reference to this edit row
         ingredientEditRows.add(new IngredientEditRow(entry, quantityField, unitField, ingredientNameField));
     }
 
     /**
-     * 动态添加一个可编辑的步骤行。
-     * 如果 instruction 为 null，则添加一个空的行（用于新增步骤）。
+     * dynamically add an editable instruction row.
+     * if the instruction is null, add an empty row (for new instruction).
      */
     private void addInstructionEditRow(Instruction instruction) {
         HBox row = new HBox(10);
         row.setAlignment(Pos.TOP_LEFT);
 
-        Label stepNumberLabel = new Label(); // 步骤编号会在recalculateStepNumbers中设置
+        Label stepNumberLabel = new Label(); // the step number will be set in recalculateStepNumbers
         stepNumberLabel.setStyle("-fx-font-weight: bold;");
 
         TextArea descriptionArea = new TextArea(instruction != null ? instruction.getDescription() : "");
@@ -382,21 +367,21 @@ public class FullRecipeController {
 
         Button removeButton = new Button("Delete");
         removeButton.setOnAction(e -> {
-            stepsListBox.getChildren().remove(row); // 从UI移除
-            instructionEditRows.removeIf(r -> r.descriptionArea == descriptionArea); // 从列表中移除引用
-            recalculateStepNumbers(); // 移除后重新计算步骤编号
+            stepsListBox.getChildren().remove(row); // remove from the UI
+            instructionEditRows.removeIf(r -> r.descriptionArea == descriptionArea); // remove the reference from the list
+            recalculateStepNumbers(); // remove the reference after recalculate the step numbers
         });
 
         row.getChildren().addAll(stepNumberLabel, descriptionArea, removeButton);
         stepsListBox.getChildren().add(row);
 
-        // 存储对这个编辑行的引用
+        // store the reference to this edit row
         instructionEditRows.add(new InstructionEditRow(instruction, stepNumberLabel, descriptionArea));
-        recalculateStepNumbers(); // 添加后重新计算步骤编号
+        recalculateStepNumbers(); // add the reference after recalculate the step numbers
     }
 
     /**
-     * 在添加/移除步骤后重新计算并更新步骤编号。
+     * recalculate and update the step numbers after adding/removing steps.
      */
     private void recalculateStepNumbers() {
         for (int i = 0; i < instructionEditRows.size(); i++) {
@@ -407,50 +392,50 @@ public class FullRecipeController {
 
     @FXML
     private void handleAddIngredient(ActionEvent event) {
-        addIngredientEditRow(null); // 添加一个新的空食材行
+        addIngredientEditRow(null); // add a new empty ingredient row
     }
 
     @FXML
     private void handleAddInstruction(ActionEvent event) {
-        addInstructionEditRow(null); // 添加一个新的空步骤行
+        addInstructionEditRow(null); // add a new empty instruction row
     }
 
     @FXML
     private void handleEditCommit(ActionEvent event) {
         if (isEditing) {
-            // 从编辑模式切换到提交模式
+            // switch from edit mode to commit mode
             commitChanges();
         } else {
-            // 从显示模式切换到编辑模式
+            // switch from display mode to edit mode
             setEditingMode(true);
         }
     }
 
     /**
-     * 提交更改到数据库并更新UI。
+     * commit the changes to the database and update the UI.
      */
     private void commitChanges() {
         if (recipe == null) {
-            showErrorDialog("错误", "没有选中的食谱可以提交更改。");
+            showErrorDialog("Error", "No recipe selected to commit changes.");
             return;
         }
 
-        // 1. 从编辑字段获取主食谱的新值
+        // 1. get the new values from the edit fields
         String newName = editRecipeNameField.getText();
         String newDescription = editDescriptionArea.getText();
         int newServings;
         try {
             newServings = Integer.parseInt(editServingField.getText());
         } catch (NumberFormatException e) {
-            showErrorDialog("输入错误", "份量必须是有效的数字。");
+            showErrorDialog("Input error", "Serving must be a valid number.");
             return;
         }
 
-        // === ✅ 加入比例缩放逻辑 ===
-        int oldServings = recipe.getServings(); // 原始份量
+        // === add the scale factor logic ===
+        int oldServings = recipe.getServings(); // the original serving
         if (oldServings > 0 && newServings > 0 && oldServings != newServings) {
             double scale = (double) newServings / oldServings;
-            System.out.println("🔁 份量变化比例：" + scale);
+            System.out.println("Serving scale: " + scale);
 
             for (IngredientEditRow row : ingredientEditRows) {
                 String quantityStr = row.quantityField.getText();
@@ -461,154 +446,48 @@ public class FullRecipeController {
                     int scaledQuantity = (int) Math.round(originalQuantity * scale);
                     row.quantityField.setText(String.valueOf(scaledQuantity));
                 } catch (NumberFormatException e) {
-                    System.err.println("无法缩放数量：" + quantityStr);
+                    System.err.println("Failed to scale quantity: " + quantityStr);
                 }
             }
         }
 
-        // 2. 更新 Recipe 对象
+        // 2. update the Recipe object
         recipe.setName(newName);
         recipe.setDescription(newDescription);
         recipe.setServings(newServings);
 
-        // 3. 将 Recipe 的更改保存到数据库
+        // 3. save the changes of the Recipe to the database
         try {
-            recipeDAO.updateRecipe(recipe); // 调用 RecipeDAO 的更新方法
-            System.out.println("✅ 食谱基本信息更新成功：" + recipe.getName());
+            recipeDAO.updateRecipe(recipe); // call the update method of RecipeDAO
+            System.out.println("Recipe basic information updated successfully: " + recipe.getName()); 
 
-            // 4. 处理食材和步骤的更新
+            // 4. handle the update of the ingredients and steps
             updateIngredientsAndInstructions();
 
-            showInfoDialog("成功", "食谱 '" + recipe.getName() + "' 已成功更新！");
+            showInfoDialog("Success", "Recipe '" + recipe.getName() + "' updated successfully!");
 
-            // 5. 更新UI到显示模式
+            // 5. update the UI to display mode
             setEditingMode(false);
-            // 重新显示更新后的数据
+            // redisplay the updated data
             previewRecipeName.setText(recipe.getName());
             previewDescription.setText(recipe.getDescription());
             previewServing.setText(String.valueOf(recipe.getServings()));
 
         } catch (SQLException e) {
-            showErrorDialog("数据库错误", "更新食谱时发生错误：" + e.getMessage());
+            showErrorDialog("Database error", "Error updating recipe: " + e.getMessage());
             e.printStackTrace();
-        } catch (Exception e) { // 捕获其他可能的异常
-            showErrorDialog("错误", "处理食材或步骤时发生未知错误：" + e.getMessage());
+        } catch (Exception e) { // catch other possible exceptions
+            showErrorDialog("Error", "Unknown error occurred while processing ingredients or steps: " + e.getMessage());
             e.printStackTrace();
         }
     }
-
-    /**
-     * 更新食材和步骤到数据库。
-     * 这是一个更复杂的方法，需要处理增、删、改。
-     */
-   /* private void updateIngredientsAndInstructions() throws SQLException {
-        InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
-        InstructionDAO instructionDAO = new InstructionDAOImpl();
-
-        // 1. 处理食材 (InstructionEntry)
-        // 获取当前数据库中的所有食材（旧数据）
-        List<InstructionEntry> oldEntries = instructionEntryDAO.getInstructionEntriesByRecipeId(recipe.getId());
-        
-        // 用于跟踪在编辑模式下被修改或新增的食材
-        List<InstructionEntry> newOrUpdatedEntries = new ArrayList<>();
-        
-        // 遍历 ingredientEditRows (用户在UI中看到和操作的食材)
-        for (IngredientEditRow row : ingredientEditRows) {
-            String quantityStr = row.quantityField.getText();
-            String unit = row.unitField.getText();
-            String ingredientName = row.ingredientNameField.getText();
-
-            // 验证输入
-            if (quantityStr.isEmpty() || unit.isEmpty() || ingredientName.isEmpty()) {
-                System.err.println("跳过无效的食材行：数量、单位或食材名称为空。");
-                continue; // 跳过无效行
-            }
-            int quantity;
-            try {
-                quantity = Integer.parseInt(quantityStr);
-            } catch (NumberFormatException e) {
-                System.err.println("无效的食材数量：" + quantityStr);
-                continue; // 跳过无效行
-            }
-
-            // 获取或创建 Ingredient 对象
-            Ingredient ingredient = ingredientDAO.getIngredientByName(ingredientName);
-            if (ingredient == null) {
-                // 如果食材不存在，则创建新食材
-                ingredient = new Ingredient(ingredientName);
-                boolean inserted = ingredientDAO.insertIngredient(ingredient);
-                if (!inserted) {
-                    System.err.println("无法插入新食材：" + ingredientName);
-                    continue;
-                }
-                // 重新获取包含ID的食材对象
-                ingredient = ingredientDAO.getIngredientByName(ingredientName);
-                if (ingredient == null) {
-                    System.err.println("无法获取新插入食材的ID：" + ingredientName);
-                    continue;
-                }
-            }
-
-            if (row.originalEntry != null) {
-                // 这是现有食材的更新
-                row.originalEntry.setQuantity(quantity);
-                row.originalEntry.setUnit(unit);
-                row.originalEntry.setIngredient(ingredient); // 更新食材对象
-                newOrUpdatedEntries.add(row.originalEntry);
-            } else {
-                // 这是新增食材
-                InstructionEntry newEntry = new InstructionEntry();
-                newEntry.setRecipe(recipe);
-                newEntry.setQuantity(quantity);
-                newEntry.setUnit(unit);
-                newEntry.setIngredient(ingredient);
-                newOrUpdatedEntries.add(newEntry);
-            }
-        }
-
-        // 删除在旧数据中存在但在新数据中不存在的食材
-        if (oldEntries != null) {
-            for (InstructionEntry oldEntry : oldEntries) {
-                boolean foundInNew = false;
-                for (InstructionEntry newEntry : newOrUpdatedEntries) {
-                    // 使用复合主键 (recipe_id 和 ingredient_id) 来判断是否是同一个条目
-                    // oldEntry 和 newEntry 的 recipe 都应该指向当前菜谱，所以主要比较 ingredient
-                    if (oldEntry.getIngredient() != null && newEntry.getIngredient() != null &&
-                        oldEntry.getRecipe().getId() == newEntry.getRecipe().getId() && // 修正：从 .equals() 改为 ==
-                        oldEntry.getIngredient().getId() == newEntry.getIngredient().getId()) { // 修正：从 .equals() 改为 ==
-                        foundInNew = true;
-                        break;
-                    }
-                }
-                if (!foundInNew) {
-                    // 旧条目不在新列表中，说明它被删除了
-                    // 调用新的 deleteInstructionEntry 方法，传入 recipeId 和 ingredientId
-                    instructionEntryDAO.deleteInstructionEntry(oldEntry.getRecipe().getId(), oldEntry.getIngredient().getId());
-                    System.out.println("🗑️ 删除食材条目：Recipe ID: " + oldEntry.getRecipe().getId() + ", Ingredient ID: " + oldEntry.getIngredient().getId());
-                }
-            }
-        }
-        
-        // 插入或更新所有新数据和修改过的数据
-        for (InstructionEntry entry : newOrUpdatedEntries) {
-            // 对于 InstructionEntry，我们没有 ID 字段来判断是新增还是更新
-            // 简单地尝试更新，如果更新失败（Affected Rows = 0），则说明记录不存在，执行插入
-            boolean updated = instructionEntryDAO.updateInstructionEntry(entry);
-            if (!updated) {
-                // 如果更新失败，说明这是新条目，尝试插入
-                instructionEntryDAO.insertInstructionEntry(entry);
-                System.out.println("➕ 插入新食材条目：" + entry.getIngredient().getName());
-            } else {
-                System.out.println("🔄 更新食材条目：" + entry.getIngredient().getName() + " (Recipe ID: " + entry.getRecipe().getId() + ", Ingredient ID: " + entry.getIngredient().getId() + ")");
-            }
-        }*/
 
     private void updateIngredientsAndInstructions() throws SQLException {
         InstructionEntryDAO instructionEntryDAO = new InstructionEntryDAOImpl();
         IngredientDAO ingredientDAO = new IngredientDAOImpl();
         InstructionDAO instructionDAO = new InstructionDAOImpl();
 
-        // 1. 保存 GUI 中的所有食材行
+        // 1. save all the ingredient rows in the GUI
         List<InstructionEntry> newEntries = new ArrayList<>();
         for (IngredientEditRow row : ingredientEditRows) {
             String quantityStr = row.quantityField.getText().trim();
@@ -616,7 +495,7 @@ public class FullRecipeController {
             String name = row.ingredientNameField.getText().trim();
 
             if (quantityStr.isEmpty() || unit.isEmpty() || name.isEmpty()) {
-                System.err.println("❌ 无效食材行，跳过");
+                System.err.println("Invalid ingredient row, skip");
                 continue;
             }
 
@@ -624,7 +503,7 @@ public class FullRecipeController {
             try {
                 quantity = Double.parseDouble(quantityStr);
             } catch (NumberFormatException e) {
-                System.err.println("❌ 数量格式错误：" + quantityStr);
+                System.err.println("Invalid quantity format: " + quantityStr);
                 continue;
             }
 
@@ -632,7 +511,7 @@ public class FullRecipeController {
             if (ingredient == null) {
                 ingredient = new Ingredient(name);
                 if (!ingredientDAO.insertIngredient(ingredient)) {
-                    System.err.println("❌ 插入新食材失败：" + name);
+                    System.err.println("Failed to insert new ingredient: " + name);
                     continue;
                 }
                 ingredient = ingredientDAO.getIngredientByName(name);
@@ -646,44 +525,44 @@ public class FullRecipeController {
             newEntries.add(entry);
         }
 
-        // Debug 打印
-        System.out.println("🔍 需保存的食材：");
+        // Debug print
+        System.out.println("Ingredients to save:");
         for (InstructionEntry e : newEntries) {
             System.out.println(" - " + e.getIngredient().getName() + " | " + e.getQuantity() + " " + e.getUnit());
         }
 
-        // 2. 删除旧数据
+        // 2. delete the old data
         instructionEntryDAO.deleteInstructionEntriesByRecipeId(recipe.getId());
-        System.out.println("🧹 删除旧的食材条目");
+        System.out.println("Deleted old ingredient entries");
 
-        // 3. 插入新数据
+        // 3. insert the new data
         for (InstructionEntry e : newEntries) {
             instructionEntryDAO.insertInstructionEntry(e);
-            System.out.println("➕ 插入食材：" + e.getIngredient().getName());
+            System.out.println("Inserted ingredient: " + e.getIngredient().getName());
         }
 
 
-    // 2. 处理步骤 (Instruction)
+    // 2. handle the steps (Instruction)
         InstructionDAO InstructionDAO = new InstructionDAOImpl();
         List<Instruction> oldInstructions = instructionDAO.getInstructionsByRecipeId(recipe.getId());
         List<Instruction> newOrUpdatedInstructions = new ArrayList<>();
 
-        // 遍历 instructionEditRows
+        // iterate the instructionEditRows
         int currentStepNumber = 1;
         for (InstructionEditRow row : instructionEditRows) {
             String description = row.descriptionArea.getText();
             if (description.isEmpty()) {
-                System.err.println("跳过无效的步骤行：描述为空。");
+                System.err.println("Invalid instruction row, skip");
                 continue;
             }
 
             if (row.originalInstruction != null) {
-                // 现有步骤的更新
+                // update the existing step
                 row.originalInstruction.setDescription(description);
-                row.originalInstruction.setStepNumber(currentStepNumber); // 更新步骤编号
+                row.originalInstruction.setStepNumber(currentStepNumber); // update the step number
                 newOrUpdatedInstructions.add(row.originalInstruction);
             } else {
-                // 新增步骤
+                // add a new step
                 Instruction newInstruction = new Instruction();
                 newInstruction.setRecipe(recipe);
                 newInstruction.setStepNumber(currentStepNumber);
@@ -693,38 +572,38 @@ public class FullRecipeController {
             currentStepNumber++;
         }
 
-        // 删除在旧数据中存在但在新数据中不存在的步骤
+        // delete the steps that exist in the old data but not in the new data
         if (oldInstructions != null) {
             for (Instruction oldInst : oldInstructions) {
                 boolean foundInNew = false;
                 for (Instruction newInst : newOrUpdatedInstructions) {
-                    // 使用复合主键 (recipe_id 和 stepNumber) 来判断是否是同一个步骤
-                    if (oldInst.getRecipe().getId() == newInst.getRecipe().getId() && // 修正：从 .equals() 改为 ==
-                        oldInst.getStepNumber() == newInst.getStepNumber()) { // 已经使用 ==
+                    // use the composite primary key (recipe_id and stepNumber) to determine if it is the same step
+                    if (oldInst.getRecipe().getId() == newInst.getRecipe().getId() && 
+                        oldInst.getStepNumber() == newInst.getStepNumber()) {
                         foundInNew = true;
                         break;
                     }
                 }
                 if (!foundInNew) {
-                    // 旧步骤不在新列表中，说明它被删除了
-                    // 调用新的 deleteInstruction 方法，传入 recipeId 和 stepNumber
+                    // the old step is not in the new list, it means it is deleted
+                    // call the new deleteInstruction method, pass in recipeId and stepNumber
                     instructionDAO.deleteInstruction(oldInst.getRecipe().getId(), oldInst.getStepNumber());
-                    System.out.println("🗑️ 删除步骤：Recipe ID: " + oldInst.getRecipe().getId() + ", Step Number: " + oldInst.getStepNumber());
+                    System.out.println("Deleted step: Recipe ID: " + oldInst.getRecipe().getId() + ", Step Number: " + oldInst.getStepNumber());
                 }
             }
         }
 
-        // 插入或更新所有新数据和修改过的数据
+        // insert or update all the new data and modified data
         for (Instruction instruction : newOrUpdatedInstructions) {
-            // 对于 Instruction，我们没有独立的 ID 字段来判断是新增还是更新
-            // 简单地尝试更新，如果更新失败（Affected Rows = 0），则说明记录不存在，执行插入
+            // for Instruction, we do not have an independent ID field to determine if it is a new or updated record
+            // simply try to update, if the update fails (Affected Rows = 0), it means the record does not exist, execute insert
             boolean updated = instructionDAO.updateInstruction(instruction);
             if (!updated) {
-                // 如果更新失败，说明这是新条目，尝试插入
+                // if the update fails, it means this is a new record, try to insert
                 instructionDAO.insertInstruction(instruction);
-                System.out.println("➕ 插入新步骤：" + instruction.getDescription());
+                System.out.println("Inserted new step: " + instruction.getDescription());
             } else {
-                System.out.println("🔄 更新步骤：" + instruction.getDescription() + " (Recipe ID: " + instruction.getRecipe().getId() + ", Step Number: " + instruction.getStepNumber() + ")");
+                System.out.println("Updated step: " + instruction.getDescription() + " (Recipe ID: " + instruction.getRecipe().getId() + ", Step Number: " + instruction.getStepNumber() + ")");
             }
         }
     }
@@ -737,27 +616,27 @@ public class FullRecipeController {
     @FXML
     private void handleDeleteRecipe() {
         if (recipe == null) {
-            showErrorDialog("错误", "没有选中的食谱可以删除。");
+            showErrorDialog("Error", "No recipe selected to delete.");
             return;
         }
 
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("确认删除");
-        confirmAlert.setHeaderText("您确定要删除此食谱吗？");
-        confirmAlert.setContentText("删除后无法恢复：" + recipe.getName());
+        confirmAlert.setTitle("Confirm delete");
+        confirmAlert.setHeaderText("Are you sure you want to delete this recipe?");
+        confirmAlert.setContentText("Deleting it cannot be recovered: " + recipe.getName());
 
         confirmAlert.showAndWait().ifPresent(response -> {
             if (response == javafx.scene.control.ButtonType.OK) {
                 try {
                     boolean deleted = recipeDAO.deleteRecipe(recipe.getId());
                     if (deleted) {
-                        showInfoDialog("删除成功", "食谱 '" + recipe.getName() + "' 已成功删除。");
-                        previewRecipeName.getScene().getWindow().hide(); // 关闭当前窗口
+                        showInfoDialog("Success", "Recipe '" + recipe.getName() + "' deleted successfully.");
+                        previewRecipeName.getScene().getWindow().hide(); // close the current window
                     } else {
-                        showErrorDialog("删除失败", "无法删除食谱 '" + recipe.getName() + "'。");
+                        showErrorDialog("Failed", "Failed to delete recipe '" + recipe.getName() + "'.");
                     }
                 } catch (SQLException e) {
-                    showErrorDialog("数据库错误", "删除食谱时发生错误：" + e.getMessage());
+                    showErrorDialog("Database error", "Error deleting recipe: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -766,11 +645,11 @@ public class FullRecipeController {
 
     @FXML
     private void handleScaleServingButton() {
-        // 切换缩放输入框的可见性
+        // switch the visibility of the scale input box
         scaleInputBox.setVisible(!scaleInputBox.isVisible());
-        // 每次点击缩放按钮，重置输入框内容
+        // reset the input box content after each click of the scale button
         scaleMultiplierField.setText("");
-        // 如果隐藏了，确保显示回原始数据
+        // if hidden, ensure to display the original data
         if (!scaleInputBox.isVisible()) {
             displayIngredientsWithScale(1);
         }
@@ -780,40 +659,40 @@ public class FullRecipeController {
     private void handleConfirmScale() {
         String multiplierText = scaleMultiplierField.getText();
         if (multiplierText == null || multiplierText.trim().isEmpty()) {
-            showErrorDialog("输入错误", "请输入一个有效的缩放倍数。");
+            showErrorDialog("Input error", "Please enter a valid scale factor.");
             return;
         }
 
         try {
             int scaleFactor = Integer.parseInt(multiplierText.trim());
             if (scaleFactor <= 0) {
-                showErrorDialog("输入错误", "缩放倍数必须是正整数。");
+                showErrorDialog("Input error", "Scale factor must be a positive integer.");
                 return;
             }
             displayIngredientsWithScale(scaleFactor);
-            scaleInputBox.setVisible(false); // 确认后隐藏输入框
+            scaleInputBox.setVisible(false); // hide the input box after confirmation
         } catch (NumberFormatException e) {
-            showErrorDialog("输入错误", "缩放倍数必须是有效的整数。");
+            showErrorDialog("Input error", "Scale factor must be a valid integer.");
         }
     }
 
     /**
-     * 显示信息对话框的通用方法。
+     * show the information dialog.
      */
     private void showInfoDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("提示");
+        alert.setTitle("Information");
         alert.setHeaderText(title);
         alert.setContentText(message);
         alert.showAndWait();
     }
 
     /**
-     * 显示错误对话框的通用方法。
+     * show the error dialog.
      */
     private void showErrorDialog(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("错误");
+        alert.setTitle("Error");
         alert.setHeaderText(title);
         alert.setContentText(message);
         alert.showAndWait();

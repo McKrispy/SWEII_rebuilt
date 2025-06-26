@@ -8,27 +8,27 @@ public interface InstructionEntryDAO {
     List<InstructionEntry> getInstructionEntriesByRecipeId(int recipeId);
 
     /**
-     * 插入新的食材条目。
-     * @param entry 食材条目对象。
-     * @return 如果插入成功则返回 true，否则返回 false。
-     * @throws SQLException 如果发生数据库访问错误。
+     * insert a new instruction entry.
+     * @param entry the instruction entry object.
+     * @return true if the insertion is successful, otherwise return false.
+     * @throws SQLException if an error occurs during database access.
      */
     boolean insertInstructionEntry(InstructionEntry entry) throws SQLException;
 
     /**
-     * 更新现有食材条目。
-     * @param entry 食材条目对象。
-     * @return 如果更新成功则返回 true，否则返回 false。
-     * @throws SQLException 如果发生数据库访问错误。
+     * update an existing instruction entry.
+     * @param entry the instruction entry object.
+     * @return true if the update is successful, otherwise return false.
+     * @throws SQLException if an error occurs during database access.
      */
     boolean updateInstructionEntry(InstructionEntry entry) throws SQLException;
 
     /**
-     * 根据食谱ID和食材ID删除食材条目。
-     * @param recipeId 食谱的ID。
-     * @param ingredientId 食材的ID。
-     * @return 如果删除成功则返回 true，否则返回 false。
-     * @throws SQLException 如果发生数据库访问错误。
+     * delete an existing instruction entry.
+     * @param recipeId the ID of the recipe.
+     * @param ingredientId the ID of the ingredient.
+     * @return true if the deletion is successful, otherwise return false.
+     * @throws SQLException if an error occurs during database access.
      */
     boolean deleteInstructionEntriesByRecipeId(int recipeId) throws SQLException;
     boolean deleteInstructionEntry(int recipeId, int ingredientId) throws SQLException;

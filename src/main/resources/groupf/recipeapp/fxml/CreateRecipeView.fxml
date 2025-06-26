@@ -35,7 +35,6 @@
                     </VBox.margin></Separator>
                 <Button maxWidth="Infinity" onAction="#handleSearchRecipes" styleClass="sidebar-button" text="Homepage" />
                 <Button maxWidth="Infinity" styleClass="sidebar-button-active" text="Create Recipe" />
-                <!-- <Button maxWidth="Infinity" onAction="#handleWorldCuisines" styleClass="sidebar-button" text="World Cuisines" /> -->
             </children>
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

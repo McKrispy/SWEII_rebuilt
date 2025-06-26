@@ -5,52 +5,52 @@ import java.util.List;
 import java.sql.SQLException;
 
 /**
- * RecipeDAO 接口定义了对 Recipe 数据访问的操作。
+ * RecipeDAO interface defines the operations for accessing Recipe data.
  */
 public interface RecipeDAO {
     /**
-     * 获取所有食谱。
-     * @return 包含所有食谱的列表。
+     * get all recipes.
+     * @return a list of all recipes.
      */
     List<Recipe> getAllRecipes();
 
     /**
-     * 根据名称搜索食谱。
-     * @param name 食谱名称关键字。
-     * @return 匹配名称的食谱列表。
+     * search recipes by name.
+     * @param name the keyword of the recipe name.
+     * @return a list of recipes that match the name.
      */
     List<Recipe> searchRecipesByName(String name);
 
     boolean insertRecipe(Recipe recipe);
 
     /**
-     * 根据地区ID获取食谱列表。
-     * @param regionId 地区ID。
-     * @return 该地区的所有食谱列表。
+     * get recipes by region ID.
+     * @param regionId the ID of the region.
+     * @return a list of recipes in the region.
      */
     List<Recipe> getRecipesByRegion(int regionId);
 
     /**
-     * 根据食谱名称和地区ID搜索食谱。
-     * @param name 食谱名称的关键字。
-     * @param regionId 地区ID。
-     * @return 符合条件的食谱列表。
+     * search recipes by name and region ID.
+     * @param name the keyword of the recipe name.
+     * @param regionId the ID of the region.
+     * @return a list of recipes that match the name and region.
      */
     List<Recipe> searchRecipesByNameAndRegion(String name, int regionId);
 
     /**
-     * 更新现有食谱的信息。
-     * @param recipe 包含更新信息的食谱对象。
-     * @return 如果更新成功则返回 true，否则返回 false。
-     * @throws SQLException 如果发生数据库访问错误。
+     * update the information of an existing recipe.
+     * @param recipe the recipe object with updated information.
+     * @return true if the update is successful, otherwise return false.
+     * @throws SQLException if an error occurs during database access.
      */
     boolean updateRecipe(Recipe recipe) throws SQLException;
 
     /**
-     * 根据食谱ID删除食谱。
-     * @param recipeId 要删除的食谱的ID。
-     * @return 如果删除成功则返回 true，否则返回 false。
-     * @throws SQLException 如果发生数据库访问错误。
+     * delete a recipe by its ID.
+     * @param recipeId the ID of the recipe to delete.
+     * @return true if the deletion is successful, otherwise return false.
+     * @throws SQLException if an error occurs during database access.
      */
     boolean deleteRecipe(int recipeId) throws SQLException;
 }

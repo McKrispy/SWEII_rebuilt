@@ -10,15 +10,15 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.FileChooser; // 导入 FileChooser
-import java.io.File; // 导入 File
-import java.io.IOException; // 导入 IOException
-import java.nio.file.Files; // 导入 Files
-import java.nio.file.Path; // 导入 Path
-import java.nio.file.StandardCopyOption; // 导入 StandardCopyOption
-import java.util.List; // 导入 List
-import javafx.collections.FXCollections; // 导入 FXCollections
-import javafx.collections.ObservableList; // 导入 ObservableList
+import javafx.stage.FileChooser; 
+import java.io.File; 
+import java.io.IOException; 
+import java.nio.file.Files; 
+import java.nio.file.Path; 
+import java.nio.file.StandardCopyOption; 
+import java.util.List; 
+import javafx.collections.FXCollections; 
+import javafx.collections.ObservableList; 
 
 
 import groupf.recipeapp.entity.Recipe;
@@ -28,9 +28,9 @@ import groupf.recipeapp.entity.InstructionEntry;
 import groupf.recipeapp.entity.Region;
 import groupf.recipeapp.dao.RecipeDAO;
 import groupf.recipeapp.dao.RecipeDAOImpl;
-import groupf.recipeapp.dao.RegionDAO; // 导入 RegionDAO
-import groupf.recipeapp.dao.RegionDAOImpl; // 导入 RegionDAOImpl
-import groupf.recipeapp.App; // 导入 App 类用于页面跳转
+import groupf.recipeapp.dao.RegionDAO; 
+import groupf.recipeapp.dao.RegionDAOImpl; 
+import groupf.recipeapp.App; 
 
 
 public class CreateRecipeController {
@@ -51,18 +51,18 @@ public class CreateRecipeController {
     private VBox instructionsBox;
 
     @FXML
-    private ComboBox<Region> regionComboBox; // FXML 注解的地区选择下拉框
+    private ComboBox<Region> regionComboBox; // FXML annotation for regionComboBox
 
     @FXML
-    private Label imagePathLabel; // FXML 注解的图片路径标签
+    private Label imagePathLabel; // FXML annotation for imagePathLabel
 
-    private String selectedImagePath; // 存储选定图片文件的相对路径
+    private String selectedImagePath; // store the relative path of the selected image file
 
-    private RegionDAO regionDAO; // 地区 DAO 实例
+    private RegionDAO regionDAO; // region DAO instance
 
     @FXML
     public void initialize() {
-        regionDAO = new RegionDAOImpl(); // 实例化 RegionDAO
+        regionDAO = new RegionDAOImpl(); // instantiate RegionDAO
         loadRegions();
     }
 
@@ -71,7 +71,6 @@ public class CreateRecipeController {
             List<Region> regions = regionDAO.getAllRegions();
             ObservableList<Region> regionObservableList = FXCollections.observableArrayList(regions);
             regionComboBox.setItems(regionObservableList);
-            // 可以设置一个默认值，或者让用户选择
             if (!regions.isEmpty()) {
                 regionComboBox.getSelectionModel().selectFirst();
             }
@@ -84,43 +83,41 @@ public class CreateRecipeController {
     @FXML
     private void handleUploadImage(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("选择图片文件");
+        fileChooser.setTitle("Select Image File");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("图片文件", "*.png", "*.jpg", "*.jpeg", "*.gif")
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
         );
 
         File selectedFile = fileChooser.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
 
         if (selectedFile != null) {
             try {
-                // 定义图片存储的相对路径 (src/main/resources/images/)
-                // 你需要在 resources 目录下手动创建 images 文件夹
                 String resourceDir = "src/main/resources/groupf/recipeapp/images/";
                 File destDir = new File(resourceDir);
                 if (!destDir.exists()) {
-                    destDir.mkdirs(); // 如果目录不存在则创建
+                    destDir.mkdirs(); // if the directory does not exist, create it
                 }
 
-                // 生成唯一的文件名，防止重复
+                // generate a unique file name to prevent duplication
                 String fileName = System.currentTimeMillis() + "_" + selectedFile.getName();
                 Path destinationPath = new File(destDir, fileName).toPath();
 
-                // 复制文件
+                // copy the file
                 Files.copy(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-                // 存储相对路径，这是我们将保存到数据库的路径
-                // 从 "src/main/resources/" 之后开始算作资源路径
+                // store the relative path, this is the path we will save to the database
+                // start from "src/main/resources/"
                 this.selectedImagePath = "/groupf/recipeapp/images/" + fileName;
-                imagePathLabel.setText(selectedFile.getName()); // 显示文件名在UI上
+                imagePathLabel.setText(selectedFile.getName()); // display the file name on the UI
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("图片上传成功");
+                alert.setTitle("Image uploaded successfully");
                 alert.setHeaderText(null);
-                alert.setContentText("图片已成功上传到本地资源。");
+                alert.setContentText("Image uploaded successfully to local resources.");
                 alert.showAndWait();
 
             } catch (IOException e) {
-                showError("无法复制图片文件: " + e.getMessage());
+                showError("Failed to copy image file: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -163,9 +160,9 @@ public class CreateRecipeController {
         String name = recipeNameField.getText().trim();
         String servingsStr = servingsField.getText().trim();
         String description = descriptionArea.getText().trim();
-        Region selectedRegion = regionComboBox.getSelectionModel().getSelectedItem(); // 获取选定的地区
+        Region selectedRegion = regionComboBox.getSelectionModel().getSelectedItem(); // get the selected region
 
-        if (name.isEmpty() || servingsStr.isEmpty() || selectedRegion == null) { // 检查地区是否选择
+        if (name.isEmpty() || servingsStr.isEmpty() || selectedRegion == null) { // check if the region is selected
             showError("Recipe name, servings, and region are required.");
             return;
         }
@@ -180,60 +177,58 @@ public class CreateRecipeController {
 
         Recipe recipe = new Recipe(name, servings);
         recipe.setDescription(description);
-        recipe.setRegion(selectedRegion); // 设置地区
+        recipe.setRegion(selectedRegion); // set the region
 
         if (selectedImagePath != null && !selectedImagePath.isEmpty()) {
             try {
-                // 1. 获取当前图片的实际文件路径 (因为selectedImagePath是资源路径)
-                // 假设图片存储在项目 workspace 的 src/main/resources/ 目录下
-                String projectRoot = System.getProperty("user.dir"); // 获取项目根目录
-                // 构建完整的旧文件路径
-                // selectedImagePath 类似 "/groupf/recipeapp/images/时间戳_文件名.png"
+                // 1. get the actual file path of the current image
+                // the image is stored in the src/main/resources/ directory
+                String projectRoot = System.getProperty("user.dir"); // get the project root directory
                 String currentFilePathOnDisk = projectRoot + File.separator + "src" + File.separator + "main" +
                                                File.separator + "resources" + selectedImagePath.replace("/", File.separator);
                 File currentImageFile = new File(currentFilePathOnDisk);
 
                 if (currentImageFile.exists()) {
-                    // 2. 提取原始文件的扩展名
+                    // 2. extract the extension of the original file
                     String currentFileName = currentImageFile.getName();
                     String fileExtension = "";
                     int dotIndex = currentFileName.lastIndexOf('.');
                     if (dotIndex > 0 && dotIndex < currentFileName.length() - 1) {
-                        fileExtension = currentFileName.substring(dotIndex); // 包含点，例如 ".png"
+                        fileExtension = currentFileName.substring(dotIndex); // contains a dot, e.g. ".png"
                     }
 
-                    // 3. 构造新的文件名：食谱名称_image.扩展名
-                    // 清理食谱名称，使其适合作为文件名（替换特殊字符为空格或下划线）
+                    // 3. construct a new file name: recipe name_image.extension
+                    // clean the recipe name, make it suitable for a file name (replace special characters with spaces or underscores)
                     String sanitizedRecipeName = name.replaceAll("[^a-zA-Z0-9\\s]", "").trim().replaceAll("\\s+", "_");
                     String newFileName = sanitizedRecipeName + "_image" + fileExtension;
                     
-                    // 构造新的目标文件路径
+                    // construct a new destination file path
                     Path newDestinationPath = new File(currentImageFile.getParentFile(), newFileName).toPath();
 
-                    // 4. 重命名（移动）文件
+                    // 4. rename (move) the file
                     Files.move(currentImageFile.toPath(), newDestinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-                    // 5. 更新 selectedImagePath 为新的相对路径
+                    // 5. update selectedImagePath to the new relative path
                     this.selectedImagePath = "/groupf/recipeapp/images/" + newFileName;
-                    System.out.println("图片已重命名为: " + this.selectedImagePath); // 调试信息
+                    System.out.println("Image renamed to: " + this.selectedImagePath); // debug information
                 } else {
-                    System.err.println("旧图片文件未找到: " + currentFilePathOnDisk);
-                    // 警告用户图片未找到，但仍继续提交食谱（不阻止提交）
+                    System.err.println("Image file not found: " + currentFilePathOnDisk);
+                    // warn the user that the image file is not found, but still continue to submit the recipe (do not prevent submission)
                 }
 
             } catch (IOException e) {
-                showError("无法重命名图片文件: " + e.getMessage());
+                showError("Failed to rename image file: " + e.getMessage());
                 e.printStackTrace();
-                return; // 如果重命名失败，则停止食谱提交
+                return; // if the renaming fails, stop the recipe submission
             }
         }
-        recipe.setImagePath(selectedImagePath); // 设置图片路径
+        recipe.setImagePath(selectedImagePath); // set the image path
         
 
-        // 收集 ingredientsBox 中的输入项
+        // collect the input items in ingredientsBox
         for (Node node : ingredientsBox.getChildren()) {
-            if (node instanceof HBox hbox) { // 检查是否为 HBox
-                // 确保 hbox 至少有3个TextFields (quantity, unit, name)
+            if (node instanceof HBox hbox) { // check if it is an HBox
+                // ensure hbox has at least 3 TextFields (quantity, unit, name)
                 if (hbox.getChildren().size() >= 3 &&
                     hbox.getChildren().get(0) instanceof TextField &&
                     hbox.getChildren().get(1) instanceof TextField &&
@@ -257,22 +252,22 @@ public class CreateRecipeController {
             }
         }
 
-        // 收集 instructionsBox 中的输入项
+        // collect the input items in instructionsBox
         int stepNumber = 1;
         for (Node node : instructionsBox.getChildren()) {
-            // 确保是 HBox 并且包含 TextField
+            // ensure it is an HBox and contains a TextField
             if (node instanceof HBox hbox && hbox.getChildren().size() >= 1 && hbox.getChildren().get(0) instanceof TextField) {
                 TextField field = (TextField) hbox.getChildren().get(0);
                 String stepDescription = field.getText().trim();
-                if (!stepDescription.isEmpty()) { // 避免添加空步骤
-                    // 这里需要传递 recipe 对象
+                if (!stepDescription.isEmpty()) { // avoid adding empty steps
+                    // here we need to pass the recipe object
                     recipe.addInstruction(new Instruction(stepNumber++, stepDescription, recipe));
                 }
             }
         }
 
 
-        // 插入数据库
+        // insert into the database
         RecipeDAO recipeDAO = new RecipeDAOImpl();
         boolean success = recipeDAO.insertRecipe(recipe);
 
@@ -282,7 +277,7 @@ public class CreateRecipeController {
             alert.setHeaderText(null);
             alert.setContentText("Recipe \"" + name + "\" submitted successfully!");
             alert.showAndWait();
-            // 提交成功后清空表单
+            // clear the form after successful submission
             recipeNameField.clear();
             servingsField.clear();
             descriptionArea.clear();
@@ -290,7 +285,7 @@ public class CreateRecipeController {
             instructionsBox.getChildren().clear();
             regionComboBox.getSelectionModel().clearSelection();
             imagePathLabel.setText("No image selected");
-            selectedImagePath = null; // 清空已选图片路径
+            selectedImagePath = null; // clear the selected image path
 
         } else {
             showError("Failed to submit recipe to database.");
@@ -307,27 +302,26 @@ public class CreateRecipeController {
 
     @FXML
     private void handleSearchRecipes(ActionEvent event) {
-        System.out.println("左侧导航按钮：Search Recipes 被点击");
+        System.out.println("Left navigation button: Search Recipes was clicked");
 
         try {
-            App.setRoot("MainView"); // 使用 App 类的 setRoot 方法跳转到 MainView
+            App.setRoot("MainView"); // use the setRoot method of App class to jump to MainView
         } catch (IOException e) {
             e.printStackTrace();
-            // 可选: 弹出错误提示
         }
     }
 
     /**
-     * 处理"世界食谱"按钮的点击事件，跳转到世界地图页面。
+     * handle the click event of the "World Cuisines" button, jump to the world map page.
      */
     @FXML
     private void handleWorldCuisines() {
-        System.out.println("左侧导航按钮：World Cuisines 被点击，尝试跳转到世界地图页面。");
+        System.out.println("Left navigation button: World Cuisines was clicked, trying to jump to the world map page.");
         try {
-            App.setRoot("WorldMapView"); // 调用App类的setRoot方法跳转到WorldMapView
+            App.setRoot("WorldMapView"); // call the setRoot method of App class to jump to WorldMapView
         } catch (IOException e) {
             e.printStackTrace();
-            showError("无法加载 WorldMapView.fxml。请检查文件是否存在且路径正确。");
+            showError("Failed to load WorldMapView.fxml. Please check if the file exists and the path is correct.");
         }
     }
 

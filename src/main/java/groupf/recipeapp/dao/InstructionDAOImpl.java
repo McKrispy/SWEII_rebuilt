@@ -13,11 +13,11 @@ public class InstructionDAOImpl implements InstructionDAO {
     public List<Instruction> getInstructionsByRecipeId(int recipeId) {
         List<Instruction> instructions = new ArrayList<>();
 
-        // 移除 'id' 列的查询
+        // remove the query of 'id' column
         String sql = "SELECT stepNumber, description, recipe_id FROM instruction WHERE recipe_id = ? ORDER BY stepNumber";
 
-        System.out.println("🔍 查询指令步骤，recipeId = " + recipeId);
-        System.out.println("🔍 执行 SQL: " + sql);
+        System.out.println("query instructions, recipeId = " + recipeId);
+        System.out.println("execute SQL: " + sql);
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -29,63 +29,59 @@ public class InstructionDAOImpl implements InstructionDAO {
             boolean hasResults = false;
             while (rs.next()) {
                 hasResults = true;
-                // 移除 int id = rs.getInt("id");
                 int stepNumber = rs.getInt("stepNumber");
                 String description = rs.getString("description");
-                // int retrievedRecipeId = rs.getInt("recipe_id"); // 可选：如果需要验证 recipe_id
 
-                System.out.println("➡️ 找到步骤: stepNumber=" + stepNumber + ", description=" + description);
+                System.out.println("found step: stepNumber=" + stepNumber + ", description=" + description);
 
                 Instruction instruction = new Instruction();
-                // 移除 instruction.setId(id);
                 instruction.setStepNumber(stepNumber);
                 instruction.setDescription(description);
-                instruction.setRecipeId(recipeId); // 或者使用 retrievedRecipeId
+                instruction.setRecipeId(recipeId);
 
                 instructions.add(instruction);
             }
 
             if (!hasResults) {
-                System.out.println("⚠️ 查询结果为空，没有找到任何步骤！");
+                System.out.println("query result is empty, no steps found!");
             }
 
         } catch (Exception e) {
-            System.err.println("❌ 查询步骤时发生异常: " + e.getMessage());
+            System.err.println("error when querying instructions: " + e.getMessage());
             e.printStackTrace();
         }
 
-        System.out.println("🔚 查询结束，找到步骤总数: " + instructions.size());
+        System.out.println("query completed, found " + instructions.size() + " steps");
 
         return instructions;
     }
 
     @Override
     public boolean insertInstruction(Instruction instruction) throws SQLException {
-        // 移除 Statement.RETURN_GENERATED_KEYS，因为我们不依赖一个单独的生成ID
         String sql = "INSERT INTO instruction (recipe_id, stepNumber, description) VALUES (?, ?, ?)";
         try (Connection conn = DBUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) { // 移除 Statement.RETURN_GENERATED_KEYS
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, instruction.getRecipe().getId()); // 使用 Recipe 对象的 ID
-            stmt.setInt(2, instruction.getStepNumber()); // 应用程序提供 stepNumber
+            stmt.setInt(1, instruction.getRecipe().getId()); // use the ID of the Recipe object
+            stmt.setInt(2, instruction.getStepNumber()); // use the step number provided by the application
             stmt.setString(3, instruction.getDescription());
             
             int affectedRows = stmt.executeUpdate();
-            // 移除获取生成的主键ID的代码
+            // remove the code to get the generated primary key ID
             return affectedRows > 0;
         }
     }
 
     @Override
     public boolean updateInstruction(Instruction instruction) throws SQLException {
-        // 根据复合主键 recipe_id 和 stepNumber 更新，只更新 description
+        // update the instruction by the composite primary key recipe_id and stepNumber, only update the description
         String sql = "UPDATE instruction SET description = ? WHERE recipe_id = ? AND stepNumber = ?";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, instruction.getDescription());
-            ps.setInt(2, instruction.getRecipe().getId()); // Recipe 的 ID
-            ps.setInt(3, instruction.getStepNumber()); // Step Number
+            ps.setInt(2, instruction.getRecipe().getId()); // the ID of the Recipe object
+            ps.setInt(3, instruction.getStepNumber()); // the step number
 
             int affectedRows = ps.executeUpdate();
             return affectedRows > 0;
@@ -100,7 +96,7 @@ public class InstructionDAOImpl implements InstructionDAO {
 
             stmt.setInt(1, recipeId);
             stmt.setInt(2, intStepNumber);
-            System.out.println("🗑️ 删除步骤：Recipe ID: " + recipeId + ", Step Number: " + intStepNumber);
+            System.out.println("delete step: recipeId=" + recipeId + ", stepNumber=" + intStepNumber);
             return stmt.executeUpdate() > 0;
         }
     }

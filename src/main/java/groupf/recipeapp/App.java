@@ -6,32 +6,32 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.net.URL;
-import java.io.IOException; // 导入IOException
-import groupf.recipeapp.controller.MainViewController; // 导入 MainViewController
+import java.io.IOException; 
+import groupf.recipeapp.controller.MainViewController; 
 
 
 public class App extends Application {
 
-    private static Scene scene; // 声明一个静态Scene变量
-    private static Stage primaryStage; // 声明一个静态Stage变量，以便在setRoot中使用
+    private static Scene scene; // declare a static Scene variable
+    private static Stage primaryStage; // declare a static Stage variable, to be used in setRoot
 
     @Override
-    public void start(Stage stage) throws Exception { // 将参数名从primaryStage改为stage
-        App.primaryStage = stage; // 保存主舞台
-        scene = new Scene(loadFXML("MainView")); // 初始化静态Scene，加载主视图
+    public void start(Stage stage) throws Exception { // change the parameter name from primaryStage to stage
+        App.primaryStage = stage; // save the main stage
+        scene = new Scene(loadFXML("MainView")); // initialize the static Scene, load the main view
         stage.setTitle("GroupF Digital Cookbook");
         stage.setScene(scene);
         stage.show();
     }
 
     /**
-     * 静态方法用于加载新的FXML文件并更新当前场景的根节点。
-     * @param fxml 要加载的FXML文件的名称（不带.fxml扩展名）。
-     * @throws IOException 如果FXML文件无法加载。
+     * static method to load a new FXML file and update the root node of the current scene.
+     * @param fxml the name of the FXML file to load (without .fxml extension).
+     * @throws IOException if the FXML file cannot be loaded.
      */
     public static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
-        // 修复：确保 primaryStage 始终显示 App.scene
+        // ensure primaryStage always displays App.scene
         if (primaryStage != null && primaryStage.getScene() != scene) {
             primaryStage.setScene(scene);
         }
@@ -42,30 +42,30 @@ public class App extends Application {
     }
 
     /**
-     * 重载的静态方法，用于加载新的FXML文件并更新当前场景的根节点，
-     * 同时将一个参数传递给目标视图的控制器。
-     * 主要用于从 WorldMapController 传递地区代码给 MainViewController。
-     * @param fxml 要加载的FXML文件的名称（不带.fxml扩展名）。
-     * @param param 要传递给目标控制器（例如 MainViewController）的参数。
-     * @throws IOException 如果FXML文件无法加载。
+     * overloaded static method to load a new FXML file and update the root node of the current scene,
+     * and pass a parameter to the target view controller.
+     * mainly used to pass the region code from WorldMapController to MainViewController.
+     * @param fxml the name of the FXML file to load (without .fxml extension).
+     * @param param the parameter to pass to the target controller (e.g. MainViewController).
+     * @throws IOException if the FXML file cannot be loaded.
      */
     public static void setRoot(String fxml, String param) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/groupf/recipeapp/fxml/" + fxml + ".fxml"));
         Parent root = fxmlLoader.load();
 
-        // 如果加载的是 MainView，并且传递了地区代码，则将其传递给 MainViewController
+        // if the loaded FXML is MainView and the region code is passed, pass it to MainViewController
         if (fxml.equals("MainView") && param != null) {
             MainViewController controller = fxmlLoader.getController();
             if (controller != null) {
-                controller.initData(param); // 调用 MainViewController 中的方法来设置地区筛选
+                controller.initData(param); // call the method in MainViewController to set the region filter
             }
         }
         scene.setRoot(root);
-        // 修复：确保 primaryStage 始终显示 App.scene
+        // ensure primaryStage always displays App.scene
         if (primaryStage != null && primaryStage.getScene() != scene) {
             primaryStage.setScene(scene);
         }
-        // 诊断性代码：确保舞台可见并位于最前面
+        // diagnostic code: ensure the stage is visible and at the front
         if (primaryStage != null) {
             primaryStage.show();
             primaryStage.toFront();
@@ -73,37 +73,37 @@ public class App extends Application {
     }
 
     /**
-     * 辅助方法，用于加载指定的FXML文件并返回其根节点。
-     * @param fxml 要加载的FXML文件的名称。
-     * @return 加载的FXML文件的根Parent节点。
-     * @throws IOException 如果FXML文件无法加载。\
+     * helper method to load the specified FXML file and return its root node.
+     * @param fxml the name of the FXML file to load.
+     * @return the root Parent node of the loaded FXML file.
+     * @throws IOException if the FXML file cannot be loaded.
      */
     private static Parent loadFXML(String fxml) throws IOException {
         String fxmlPath = "/groupf/recipeapp/fxml/" + fxml + ".fxml";
-        URL fxmlUrl = App.class.getResource(fxmlPath); // 尝试获取资源URL
+        URL fxmlUrl = App.class.getResource(fxmlPath); // try to get the resource URL
 
-        System.out.println("尝试加载 FXML 文件: " + fxmlPath); // 打印尝试加载的路径
+        System.out.println("trying to load FXML file: " + fxmlPath); // print the path trying to load
         if (fxmlUrl == null) {
-            // 如果getResource返回null，说明资源未找到
-            System.err.println("错误：FXML 资源未找到。URL 为 null，路径: " + fxmlPath);
-            // 打印 App 类是从哪里加载的，这有助于诊断类加载器问题
+            // if getResource returns null, the resource is not found
+            System.err.println("error: FXML resource not found. URL is null, path: " + fxmlPath);
+            // print the class from where App is loaded, this helps to diagnose class loader issues
             try {
                 System.err.println("App.class 加载自: " + App.class.getProtectionDomain().getCodeSource().getLocation());
             } catch (SecurityException e) {
-                System.err.println("无法获取 App.class 的加载位置: " + e.getMessage());
+                System.err.println("cannot get the loading location of App.class: " + e.getMessage());
             }
-            // 抛出更具体的异常，包含找不到的路径
-            throw new IOException("FXML 文件未找到: " + fxmlPath);
+            // throw a more specific exception, containing the not found path
+            throw new IOException("FXML file not found: " + fxmlPath);
         } else {
-            System.out.println("FXML 资源已找到。URL: " + fxmlUrl); // 打印找到的URL
+            System.out.println("FXML resource found. URL: " + fxmlUrl); // print the found URL
         }
 
         FXMLLoader fxmlLoader = new FXMLLoader(fxmlUrl);
         return fxmlLoader.load();
     }
     /**
-     * JavaFX应用程序的主入口点。
-     * @param args 命令行参数。
+     * the main entry point of the JavaFX application.
+     * @param args command line arguments
      */
     public static void main(String[] args) {
         launch(args);

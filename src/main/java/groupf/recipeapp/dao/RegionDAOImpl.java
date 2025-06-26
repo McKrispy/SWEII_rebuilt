@@ -16,7 +16,7 @@ public class RegionDAOImpl implements RegionDAO {
     @Override
     public List<Region> getAllRegions() throws SQLException {
         List<Region> regions = new ArrayList<>();
-        String sql = "SELECT id, name, code FROM region"; // 确保列名与数据库匹配
+        String sql = "SELECT id, name, code FROM region"; 
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -30,7 +30,7 @@ public class RegionDAOImpl implements RegionDAO {
                 regions.add(extractRegionFromResultSet(rs));
             }
         } finally {
-            // 确保资源被关闭
+            // ensure the resources are closed
             if (rs != null) {
                 try {
                     rs.close();
@@ -68,7 +68,7 @@ public class RegionDAOImpl implements RegionDAO {
     }
 
     @Override
-    public Region getRegionByCode(String code) throws SQLException { // 修复点：添加 throws SQLException
+    public Region getRegionByCode(String code) throws SQLException { // fix: add throws SQLException
         String sql = "SELECT id, name, code FROM Region WHERE code = ?";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -78,13 +78,13 @@ public class RegionDAOImpl implements RegionDAO {
                 return extractRegionFromResultSet(rs);
             }
         }
-        // 如果没有找到匹配的地区，或者发生 SQLException，直接让它抛出。
-        // 因为方法签名已经声明了 throws SQLException。
-        return null; // 如果未找到，则返回 null
+        // if no matching region is found, or SQLException occurs, let it throw.
+        // because the method signature already declares throws SQLException.
+        return null; // if not found, return null
     }
 
     private Region extractRegionFromResultSet(ResultSet rs) throws SQLException {
-        // 修复点：使用带参数的构造函数
+            // fix: use the constructor with parameters
         int id = rs.getInt("id");
         String name = rs.getString("name");
         String code = rs.getString("code");

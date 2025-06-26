@@ -1,5 +1,5 @@
 #editRecipeNameField,
 #editServingField,
 #editDescriptionArea {
-    -fx-pref-width: 400px; /* 您可以根据需要调整这个宽度 */
+    -fx-pref-width: 400px; 
 }

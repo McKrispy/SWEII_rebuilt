@@ -3,8 +3,8 @@ package groupf.recipeapp.entity;
 public class Instruction {
     private int stepNumber;
     private String description;
-    private Recipe recipe; // Reference to the Recipe object
-    private int recipeId; // For convenience, if needed
+    private Recipe recipe; 
+    private int recipeId; 
 
     
     //constructor
@@ -12,7 +12,7 @@ public class Instruction {
 
 	}
 
-	// 更新构造函数，移除 id 参数
+	// update the constructor, remove the id parameter
     public Instruction(int stepNumber, String description, Recipe recipe) {
         this.stepNumber = stepNumber;
         this.description = description;
@@ -22,17 +22,13 @@ public class Instruction {
         }
     }
 
-    // 新增：Recipe 对象的 getter 和 setter
+    // getter and setter for Recipe object
     public Recipe getRecipe() {
         return recipe;
     }
 
     public void setRecipe(Recipe recipe) {
         this.recipe = recipe;
-        // 如果旧代码依赖于 getRecipeId()，这里可以同时设置 recipeId，但推荐直接使用 Recipe 对象
-        // if (recipe != null) {
-        //     this.recipeId = recipe.getId();
-        // }
     }
 
 
@@ -44,21 +40,18 @@ public class Instruction {
         return description;
     }
 
-    // 移除原有的 getRecipeId() 和 setRecipeId()，现在通过 Recipe 对象来管理
-    // 如果您的一些旧代码确实需要 int 类型的 recipeId，可以保留一个包装方法
-    @Deprecated // 标记为不推荐使用，建议修改调用方直接使用 getRecipe().getId()
+
+    @Deprecated 
     public int getRecipeId() {
-        return (recipe != null) ? recipe.getId() : 0; // 返回0或抛出异常，取决于业务逻辑
+        return (recipe != null) ? recipe.getId() : 0; // return 0 or throw an exception, depending on the business logic
     }
 
-    @Deprecated // 标记为不推荐使用，建议修改调用方直接使用 setRecipe(Recipe recipe)
+    @Deprecated 
     public void setRecipeId(int recipeId) {
-        // 警告：这种方式不推荐，因为它没有设置实际的 Recipe 对象。
-        // 最好是通过 setRecipe(Recipe recipe) 来设置关联。
-        // 为了兼容性，这里可以暂时留空或进行简单的设置。
-        System.err.println("警告: 不推荐直接通过 int setRecipeId(int) 方法设置 Recipe ID。请考虑使用 setRecipe(Recipe recipe)。");
+        // for compatibility, here is temporarily retained. 
+        System.err.println("Warning: it is not recommended to set the Recipe ID directly through the int setRecipeId(int) method. Please consider using setRecipe(Recipe recipe).");
         if (this.recipe == null) {
-            this.recipe = new Recipe(); // 创建一个空的 Recipe 对象
+            this.recipe = new Recipe(); // create an empty Recipe object
         }
         this.recipe.setId(recipeId);
     }
