@@ -323,7 +323,7 @@ public class RecipeDAOImpl implements RecipeDAO {
             connection.setAutoCommit(false); // 开始事务
 
             // 1. 删除与此食谱相关的所有 InstructionEntry
-            String deleteEntriesSql = "DELETE FROM instruction_entry WHERE recipe_id = ?";
+            String deleteEntriesSql = "DELETE FROM instructionentry WHERE recipe_id = ?";
             ps = connection.prepareStatement(deleteEntriesSql);
             ps.setInt(1, recipeId);
             ps.executeUpdate();
