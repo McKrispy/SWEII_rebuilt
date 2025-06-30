@@ -126,6 +126,7 @@ public class CreateRecipeController {
     @FXML
     private void handleAddIngredient() {
         HBox ingredientRow = new HBox(5);
+        ingredientRow.setAlignment(javafx.geometry.Pos.CENTER); // Set HBox alignment to center
         TextField weightField = new TextField();
         weightField.setPromptText("Weight");
 
@@ -145,6 +146,7 @@ public class CreateRecipeController {
     @FXML
     private void handleAddInstruction() {
         HBox stepRow = new HBox(5);
+        stepRow.setAlignment(javafx.geometry.Pos.CENTER); // Set HBox alignment to center
         TextField stepField = new TextField();
         stepField.setPromptText("Step");
 
