@@ -561,9 +561,13 @@ public class FullRecipeController {
             previewRecipeName.setText(recipe.getName());
             previewDescription.setText(recipe.getDescription());
             previewServing.setText(String.valueOf(recipe.getServings()));
+            previewRegion.setText(recipe.getRegion() != null ? recipe.getRegion().getName() : "Unknown Region"); // update region display
 
         } catch (SQLException e) {
             showErrorDialog("Database error", "Error updating recipe: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) { // Catch the custom exception for input errors
+            showErrorDialog("Input Error", e.getMessage());
             e.printStackTrace();
         } catch (Exception e) { // catch other possible exceptions
             showErrorDialog("Error", "Unknown error occurred while processing ingredients or steps: " + e.getMessage());
@@ -584,16 +588,14 @@ public class FullRecipeController {
             String name = row.ingredientNameField.getText().trim();
 
             if (quantityStr.isEmpty() || unit.isEmpty() || name.isEmpty()) {
-                System.err.println("Invalid ingredient row, skip");
-                continue;
+                throw new IllegalArgumentException("Ingredient quantity, unit, and name cannot be empty.");
             }
 
             double quantity;
             try {
                 quantity = Double.parseDouble(quantityStr);
             } catch (NumberFormatException e) {
-                System.err.println("Invalid quantity format: " + quantityStr);
-                continue;
+                throw new IllegalArgumentException("Invalid quantity format for ingredient \'" + name + "\': \'" + quantityStr + "\'. Quantity must be a valid number.");
             }
 
             Ingredient ingredient = ingredientDAO.getIngredientByName(name);

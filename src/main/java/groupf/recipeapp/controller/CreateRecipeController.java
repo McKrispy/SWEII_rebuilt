@@ -74,6 +74,22 @@ public class CreateRecipeController {
             if (!regions.isEmpty()) {
                 regionComboBox.getSelectionModel().selectFirst();
             }
+            // Set a StringConverter to display only the region name
+            regionComboBox.setConverter(new javafx.util.StringConverter<Region>() {
+                @Override
+                public String toString(Region region) {
+                    return region != null ? region.getName() : "";
+                }
+
+                @Override
+                public Region fromString(String string) {
+                    // This method is used when converting a string back to a Region object,
+                    // which is not directly applicable for simple display purposes here.
+                    // You might implement this if users could type into the ComboBox
+                    // or if you needed to find a Region object by its name.
+                    return null; 
+                }
+            });
         } catch (Exception e) {
             showError("Failed to load regions: " + e.getMessage());
             e.printStackTrace();
