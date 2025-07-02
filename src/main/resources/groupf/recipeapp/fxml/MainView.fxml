@@ -56,6 +56,7 @@
                 <Button maxWidth="Infinity" onAction="#handleCreateNewRecipe" styleClass="sidebar-button" text="Create Recipe" />
                 <Button maxWidth="Infinity" onAction="#handleRecommendedDishes" styleClass="sidebar-button" text="World Cuisines" />
                 <Button maxWidth="Infinity" onAction="#handleResetRegion" styleClass="sidebar-button" text="Reset Region" />
+                <Button fx:id="refreshButton" maxWidth="Infinity" onAction="#handleRefresh" styleClass="sidebar-button" text="Refresh" />
             </children>
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

@@ -783,21 +783,32 @@ public class FullRecipeController {
                     destDir.mkdirs(); // if the directory does not exist, create it
                 }
 
-                // generate a unique file name to prevent duplication
-                String fileName = System.currentTimeMillis() + "_" + selectedFile.getName();
-                Path destinationPath = new File(destDir, fileName).toPath();
+                String originalFileName = selectedFile.getName();
+                String fileExtension = "";
+                int dotIndex = originalFileName.lastIndexOf('.');
+                if (dotIndex > 0 && dotIndex < originalFileName.length() - 1) {
+                    fileExtension = originalFileName.substring(dotIndex); // includes the dot, e.g., ".png"
+                }
+
+                // Get recipe name from editRecipeNameField and sanitize it
+                String recipeName = editRecipeNameField.getText().trim();
+                String sanitizedRecipeName = recipeName.isEmpty() ? "unknown_recipe" : recipeName.replaceAll("[^a-zA-Z0-9\\s]", "").trim().replaceAll("\\s+", "_");
+
+                // Generate new file name: recipeName_image_timestamp.extension
+                String newFileName = sanitizedRecipeName + "_image_" + System.currentTimeMillis() + fileExtension;
+                Path destinationPath = new File(destDir, newFileName).toPath();
 
                 // copy the file
                 Files.copy(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
                 // store the relative path, this is the path we will save to the database
-                this.currentImagePath = "/groupf/recipeapp/images/" + fileName;
-                editImagePathField.setText(selectedFile.getName()); // display the file name on the UI
+                this.currentImagePath = "/groupf/recipeapp/images/" + newFileName;
+                editImagePathField.setText(newFileName); // display the new file name on the UI
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Image Upload Success");
                 alert.setHeaderText(null);
-                alert.setContentText("Image uploaded successfully to local resources.");
+                alert.setContentText("Image uploaded successfully to local resources with new name: " + newFileName);
                 alert.showAndWait();
 
             } catch (IOException e) {

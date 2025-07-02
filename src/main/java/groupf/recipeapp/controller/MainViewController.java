@@ -68,6 +68,9 @@ public class MainViewController implements Initializable {
     @FXML
     private ImageView previewImageView;
 
+    @FXML
+    private Button refreshButton;
+
     // --- the backend service interface (now using the real implementation) ---
     private RecipeDAO recipeDAO; 
     private RegionDAO regionDAO;
@@ -244,6 +247,34 @@ public class MainViewController implements Initializable {
         currentFilteredRegion = null; // clear the region filter
         loadAllRecipes(); // reload all recipes
         System.out.println("DEBUG: MainViewController: handleResetRegion completed. currentFilteredRegion: " + currentFilteredRegion);
+    }
+
+    @FXML
+    private void handleRefresh(ActionEvent event) {
+        System.out.println("Refresh button clicked.");
+        Recipe selectedRecipeBeforeRefresh = recipeListView.getSelectionModel().getSelectedItem();
+        Integer selectedRecipeId = (selectedRecipeBeforeRefresh != null) ? selectedRecipeBeforeRefresh.getId() : null;
+
+        // reload the recipes based on the current filter
+        if (currentFilteredRegion == null) {
+            loadAllRecipes();
+        } else {
+            filterRecipesByRegion(currentFilteredRegion);
+        }
+
+        // re-select the recipe if it was selected before refresh, and update its preview
+        if (selectedRecipeId != null) {
+            recipeListView.getItems().stream()
+                    .filter(r -> r.getId() == selectedRecipeId)
+                    .findFirst()
+                    .ifPresent(updatedRecipe -> {
+                        recipeListView.getSelectionModel().select(updatedRecipe);
+                        displayRecipePreview(updatedRecipe);
+                    });
+        } else {
+            // if no recipe was selected, clear the preview
+            displayRecipePreview(null);
+        }
     }
 
     // --- data loading and display methods ---

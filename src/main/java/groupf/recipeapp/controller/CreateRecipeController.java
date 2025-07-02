@@ -98,22 +98,33 @@ public class CreateRecipeController {
                     destDir.mkdirs(); // if the directory does not exist, create it
                 }
 
-                // generate a unique file name to prevent duplication
-                String fileName = System.currentTimeMillis() + "_" + selectedFile.getName();
-                Path destinationPath = new File(destDir, fileName).toPath();
+                String originalFileName = selectedFile.getName();
+                String fileExtension = "";
+                int dotIndex = originalFileName.lastIndexOf('.');
+                if (dotIndex > 0 && dotIndex < originalFileName.length() - 1) {
+                    fileExtension = originalFileName.substring(dotIndex); // includes the dot, e.g., ".png"
+                }
+
+                // Get recipe name and sanitize it
+                String recipeName = recipeNameField.getText().trim();
+                String sanitizedRecipeName = recipeName.isEmpty() ? "unknown_recipe" : recipeName.replaceAll("[^a-zA-Z0-9\\s]", "").trim().replaceAll("\\s+", "_");
+
+                // Generate new file name: recipeName_image_timestamp.extension
+                String newFileName = sanitizedRecipeName + "_image_" + System.currentTimeMillis() + fileExtension;
+                Path destinationPath = new File(destDir, newFileName).toPath();
 
                 // copy the file
                 Files.copy(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
                 // store the relative path, this is the path we will save to the database
-                // start from "src/main/resources/"
-                this.selectedImagePath = "/groupf/recipeapp/images/" + fileName;
-                imagePathLabel.setText(selectedFile.getName()); // display the file name on the UI
+                // start from "/groupf/recipeapp/" (relative to resources)
+                this.selectedImagePath = "/groupf/recipeapp/images/" + newFileName;
+                imagePathLabel.setText(newFileName); // display the new file name on the UI
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Image uploaded successfully");
                 alert.setHeaderText(null);
-                alert.setContentText("Image uploaded successfully to local resources.");
+                alert.setContentText("Image uploaded successfully to local resources with new name: " + newFileName);
                 alert.showAndWait();
 
             } catch (IOException e) {
@@ -181,49 +192,8 @@ public class CreateRecipeController {
         recipe.setDescription(description);
         recipe.setRegion(selectedRegion); // set the region
 
-        if (selectedImagePath != null && !selectedImagePath.isEmpty()) {
-            try {
-                // 1. get the actual file path of the current image
-                // the image is stored in the src/main/resources/ directory
-                String projectRoot = System.getProperty("user.dir"); // get the project root directory
-                String currentFilePathOnDisk = projectRoot + File.separator + "src" + File.separator + "main" +
-                                               File.separator + "resources" + selectedImagePath.replace("/", File.separator);
-                File currentImageFile = new File(currentFilePathOnDisk);
-
-                if (currentImageFile.exists()) {
-                    // 2. extract the extension of the original file
-                    String currentFileName = currentImageFile.getName();
-                    String fileExtension = "";
-                    int dotIndex = currentFileName.lastIndexOf('.');
-                    if (dotIndex > 0 && dotIndex < currentFileName.length() - 1) {
-                        fileExtension = currentFileName.substring(dotIndex); // contains a dot, e.g. ".png"
-                    }
-
-                    // 3. construct a new file name: recipe name_image.extension
-                    // clean the recipe name, make it suitable for a file name (replace special characters with spaces or underscores)
-                    String sanitizedRecipeName = name.replaceAll("[^a-zA-Z0-9\\s]", "").trim().replaceAll("\\s+", "_");
-                    String newFileName = sanitizedRecipeName + "_image" + fileExtension;
-                    
-                    // construct a new destination file path
-                    Path newDestinationPath = new File(currentImageFile.getParentFile(), newFileName).toPath();
-
-                    // 4. rename (move) the file
-                    Files.move(currentImageFile.toPath(), newDestinationPath, StandardCopyOption.REPLACE_EXISTING);
-
-                    // 5. update selectedImagePath to the new relative path
-                    this.selectedImagePath = "/groupf/recipeapp/images/" + newFileName;
-                    System.out.println("Image renamed to: " + this.selectedImagePath); // debug information
-                } else {
-                    System.err.println("Image file not found: " + currentFilePathOnDisk);
-                    // warn the user that the image file is not found, but still continue to submit the recipe (do not prevent submission)
-                }
-
-            } catch (IOException e) {
-                showError("Failed to rename image file: " + e.getMessage());
-                e.printStackTrace();
-                return; // if the renaming fails, stop the recipe submission
-            }
-        }
+        // The image path is already set in handleUploadImage with the desired naming convention.
+        // We no longer need to rename or move the image here.
         recipe.setImagePath(selectedImagePath); // set the image path
         
 
