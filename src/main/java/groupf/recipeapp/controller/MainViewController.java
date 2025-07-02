@@ -239,28 +239,17 @@ public class MainViewController implements Initializable {
     }
 
     /**
-     * clear the region filter, and display all recipes.
+     * Handles the refresh action, which includes resetting the region filter and reloading all recipes.
      */
     @FXML
-    private void handleResetRegion() {
-        System.out.println("ResetRegion button is clicked.");
-        currentFilteredRegion = null; // clear the region filter
-        loadAllRecipes(); // reload all recipes
-        System.out.println("DEBUG: MainViewController: handleResetRegion completed. currentFilteredRegion: " + currentFilteredRegion);
-    }
-
-    @FXML
     private void handleRefresh(ActionEvent event) {
-        System.out.println("Refresh button clicked.");
+        System.out.println("Refresh button clicked: Resetting region and reloading recipes.");
+        currentFilteredRegion = null; // clear the region filter
+
         Recipe selectedRecipeBeforeRefresh = recipeListView.getSelectionModel().getSelectedItem();
         Integer selectedRecipeId = (selectedRecipeBeforeRefresh != null) ? selectedRecipeBeforeRefresh.getId() : null;
 
-        // reload the recipes based on the current filter
-        if (currentFilteredRegion == null) {
-            loadAllRecipes();
-        } else {
-            filterRecipesByRegion(currentFilteredRegion);
-        }
+        loadAllRecipes(); // reload all recipes
 
         // re-select the recipe if it was selected before refresh, and update its preview
         if (selectedRecipeId != null) {
@@ -275,6 +264,7 @@ public class MainViewController implements Initializable {
             // if no recipe was selected, clear the preview
             displayRecipePreview(null);
         }
+        System.out.println("DEBUG: MainViewController: handleRefresh completed. currentFilteredRegion: " + currentFilteredRegion);
     }
 
     // --- data loading and display methods ---
