@@ -45,6 +45,7 @@ import java.sql.SQLException;
 import java.util.regex.Matcher; 
 import java.util.regex.Pattern; 
 import javafx.scene.Node;
+import java.nio.file.Paths;
 
 public class FullRecipeController {
 
@@ -800,8 +801,21 @@ public class FullRecipeController {
                 String newFileName = sanitizedRecipeName + "_image_" + System.currentTimeMillis() + fileExtension;
                 Path destinationPath = new File(destDir, newFileName).toPath();
 
-                // copy the file
+                // copy the file to src/main/resources
                 Files.copy(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Determine the project root directory more robustly
+                String projectRoot = System.getProperty("user.dir");
+
+                // Construct the path for target/classes directory
+                Path targetClassesDestDir = Paths.get(projectRoot, "target", "classes", "groupf", "recipeapp", "images");
+                if (!Files.exists(targetClassesDestDir)) {
+                    Files.createDirectories(targetClassesDestDir); // Create directories if they don't exist
+                }
+                Path targetClassesDestinationPath = targetClassesDestDir.resolve(newFileName);
+
+                // Copy the file to target/classes
+                Files.copy(selectedFile.toPath(), targetClassesDestinationPath, StandardCopyOption.REPLACE_EXISTING);
 
                 // store the relative path, this is the path we will save to the database
                 this.currentImagePath = "/groupf/recipeapp/images/" + newFileName;

@@ -19,6 +19,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List; 
 import javafx.collections.FXCollections; 
 import javafx.collections.ObservableList; 
+import java.nio.file.Paths;
 
 
 import groupf.recipeapp.entity.Recipe;
@@ -129,8 +130,22 @@ public class CreateRecipeController {
                 String newFileName = sanitizedRecipeName + "_image_" + System.currentTimeMillis() + fileExtension;
                 Path destinationPath = new File(destDir, newFileName).toPath();
 
-                // copy the file
+                // copy the file to src/main/resources
                 Files.copy(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Determine the project root directory more robustly
+                String projectRoot = System.getProperty("user.dir");
+
+                // Construct the path for target/classes directory
+                // This path should be relative to the project root for consistency
+                Path targetClassesDestDir = Paths.get(projectRoot, "target", "classes", "groupf", "recipeapp", "images");
+                if (!Files.exists(targetClassesDestDir)) {
+                    Files.createDirectories(targetClassesDestDir); // Create directories if they don't exist
+                }
+                Path targetClassesDestinationPath = targetClassesDestDir.resolve(newFileName);
+
+                // Copy the file to target/classes
+                Files.copy(selectedFile.toPath(), targetClassesDestinationPath, StandardCopyOption.REPLACE_EXISTING);
 
                 // store the relative path, this is the path we will save to the database
                 // start from "/groupf/recipeapp/" (relative to resources)
