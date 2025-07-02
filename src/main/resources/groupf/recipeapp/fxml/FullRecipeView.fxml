@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
@@ -59,10 +60,27 @@
 
                             <!-- Image -->
                             <ImageView fx:id="previewImageView" fitHeight="200.0" fitWidth="300.0" preserveRatio="true" />
+
+                            <!-- Image Path and Upload Button -->
+                            <HBox fx:id="imageEditBox" alignment="CENTER" spacing="10" visible="false">
+                                <Label text="Image Path:" />
+                                <TextField fx:id="editImagePathField" prefWidth="200" promptText="Enter image path or upload" />
+                                <Button fx:id="uploadImageButton" onAction="#handleUploadImage" text="Upload Image" />
+                            </HBox>
                         </VBox>
 
                         <!-- Right Column -->
                         <VBox alignment="TOP_CENTER" spacing="15" HBox.hgrow="ALWAYS">
+                            <!-- Region -->
+                            <HBox alignment="CENTER" spacing="10">
+                                <Label style="-fx-font-weight: bold;" text="Region:">
+                           <HBox.margin>
+                              <Insets left="170.0" />
+                           </HBox.margin></Label>
+                                <Label fx:id="previewRegion" text="" />
+                                <ComboBox fx:id="editRegionComboBox" prefWidth="150" promptText="Select Region" visible="false" />
+                            </HBox>
+
                             <!-- Description -->
                             <Label style="-fx-font-weight: bold;" text="Description:" textAlignment="CENTER" />
                             <Label fx:id="previewDescription" text="" textAlignment="CENTER" wrapText="true" />

@@ -9,12 +9,21 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField; 
 import javafx.scene.layout.HBox; 
 import javafx.geometry.Pos; 
+import javafx.stage.FileChooser; 
+import java.io.File; 
+import java.io.IOException; 
+import java.nio.file.Files; 
+import java.nio.file.Path; 
+import java.nio.file.StandardCopyOption; 
+import javafx.collections.FXCollections; 
+import javafx.collections.ObservableList; 
+import javafx.scene.control.ComboBox; 
 
 import groupf.recipeapp.entity.Recipe;
 import groupf.recipeapp.entity.InstructionEntry;
 import groupf.recipeapp.entity.Instruction;
 import groupf.recipeapp.entity.Ingredient; 
-
+import groupf.recipeapp.entity.Region; // import Region entity
 
 import groupf.recipeapp.dao.InstructionEntryDAO;
 import groupf.recipeapp.dao.InstructionEntryDAOImpl;
@@ -24,6 +33,8 @@ import groupf.recipeapp.dao.RecipeDAO;
 import groupf.recipeapp.dao.RecipeDAOImpl; 
 import groupf.recipeapp.dao.IngredientDAO; 
 import groupf.recipeapp.dao.IngredientDAOImpl;
+import groupf.recipeapp.dao.RegionDAO; // import RegionDAO
+import groupf.recipeapp.dao.RegionDAOImpl; 
 
 import java.util.*;
 
@@ -33,6 +44,7 @@ import javafx.scene.control.Alert;
 import java.sql.SQLException; 
 import java.util.regex.Matcher; 
 import java.util.regex.Pattern; 
+import javafx.scene.Node;
 
 public class FullRecipeController {
 
@@ -64,6 +76,17 @@ public class FullRecipeController {
     @FXML
     private TextField editServingField; 
 
+    @FXML
+    private Label previewRegion; // display region in read-only mode
+
+    @FXML
+    private ComboBox<Region> editRegionComboBox; // allow selecting region in edit mode
+
+    @FXML
+    private TextField editImagePathField; // display/edit image path
+
+    @FXML
+    private Button uploadImageButton; // button to upload image
 
     @FXML
     private Button editCommitButton; 
@@ -85,10 +108,15 @@ public class FullRecipeController {
     @FXML
     private TextField scaleMultiplierField; 
 
+    @FXML
+    private HBox imageEditBox; // Added this line to control the visibility of the HBox containing image editing elements
+
     private Recipe recipe;
     private boolean isEditing = false; 
     private RecipeDAO recipeDAO; 
     private IngredientDAO ingredientDAO; 
+    private RegionDAO regionDAO; // RegionDAO instance
+    private String currentImagePath; // store the relative path of the current image
 
     // store the references of the dynamically created ingredient edit rows and instruction edit rows
     private List<IngredientEditRow> ingredientEditRows = new ArrayList<>();
@@ -127,6 +155,7 @@ public class FullRecipeController {
     public FullRecipeController() {
         this.recipeDAO = new RecipeDAOImpl();
         this.ingredientDAO = new IngredientDAOImpl(); // initialize IngredientDAO
+        this.regionDAO = new RegionDAOImpl(); // initialize RegionDAO
     }
 
     public void setRecipe(Recipe recipe) {
@@ -143,6 +172,7 @@ public class FullRecipeController {
         previewRecipeName.setText(recipe.getName());
         previewDescription.setText(recipe.getDescription());
         previewServing.setText(String.valueOf(recipe.getServings()));
+        previewRegion.setText(recipe.getRegion() != null ? recipe.getRegion().getName() : "Unknown Region");
 
         // initialize in display mode
         setEditingMode(false);
@@ -162,6 +192,23 @@ public class FullRecipeController {
         // load and display the ingredients and steps (initial in read-only mode)
         loadAndDisplayIngredients();
         loadAndDisplayInstructions();
+        loadRegions(); // load regions when setting the recipe
+
+        // set the image path and region in edit mode
+        if (recipe.getImagePath() != null) {
+            editImagePathField.setText(recipe.getImagePath());
+            this.currentImagePath = recipe.getImagePath();
+        } else {
+            editImagePathField.setText("");
+            this.currentImagePath = null;
+        }
+
+        // set the selected region
+        if (recipe.getRegion() != null) {
+            editRegionComboBox.getSelectionModel().select(recipe.getRegion());
+        } else {
+            editRegionComboBox.getSelectionModel().clearSelection();
+        }
     }
 
      /**
@@ -225,6 +272,33 @@ public class FullRecipeController {
     }
 
     /**
+     * Helper to load regions into the ComboBox.
+     */
+    private void loadRegions() {
+        try {
+            List<Region> regions = regionDAO.getAllRegions();
+            ObservableList<Region> regionObservableList = FXCollections.observableArrayList(regions);
+            editRegionComboBox.setItems(regionObservableList);
+            // set display property for ComboBox (show region name)
+            editRegionComboBox.setConverter(new javafx.util.StringConverter<Region>() {
+                @Override
+                public String toString(Region region) {
+                    return region != null ? region.getName() : "";
+                }
+
+                @Override
+                public Region fromString(String string) {
+                    // this is not needed for display only
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            showErrorDialog("Error", "Failed to load regions: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * switch the UI state between edit and display mode.
      * @param editing true means enter edit mode, false means enter display mode.
      */
@@ -258,6 +332,15 @@ public class FullRecipeController {
         // switch the visibility of the "add" button container
         addIngredientButtonBox.setVisible(editing);
         addInstructionButtonBox.setVisible(editing);
+
+        // switch the visibility of the image path field and upload button
+        editImagePathField.setVisible(editing);
+        uploadImageButton.setVisible(editing);
+        imageEditBox.setVisible(editing);
+
+        // switch the visibility of the region display label and ComboBox
+        previewRegion.setVisible(!editing);
+        editRegionComboBox.setVisible(editing);
 
         // the visibility of the scale button and input box: hidden in edit mode, shown in display mode
         scaleServingButton.setVisible(!editing);
@@ -431,6 +514,10 @@ public class FullRecipeController {
             return;
         }
 
+        // === get new image path and region ===
+        String newImagePath = this.currentImagePath; // use currentImagePath which is updated by handleUploadImage
+        Region newRegion = editRegionComboBox.getSelectionModel().getSelectedItem();
+
         // === add the scale factor logic ===
         int oldServings = recipe.getServings(); // the original serving
         if (oldServings > 0 && newServings > 0 && oldServings != newServings) {
@@ -455,6 +542,8 @@ public class FullRecipeController {
         recipe.setName(newName);
         recipe.setDescription(newDescription);
         recipe.setServings(newServings);
+        recipe.setImagePath(newImagePath); // update image path
+        recipe.setRegion(newRegion); // update region
 
         // 3. save the changes of the Recipe to the database
         try {
@@ -673,6 +762,48 @@ public class FullRecipeController {
             scaleInputBox.setVisible(false); // hide the input box after confirmation
         } catch (NumberFormatException e) {
             showErrorDialog("Input error", "Scale factor must be a valid integer.");
+        }
+    }
+
+    @FXML
+    private void handleUploadImage(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Image File");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(((Node) event.getSource()).getScene().getWindow());
+
+        if (selectedFile != null) {
+            try {
+                String resourceDir = "src/main/resources/groupf/recipeapp/images/";
+                File destDir = new File(resourceDir);
+                if (!destDir.exists()) {
+                    destDir.mkdirs(); // if the directory does not exist, create it
+                }
+
+                // generate a unique file name to prevent duplication
+                String fileName = System.currentTimeMillis() + "_" + selectedFile.getName();
+                Path destinationPath = new File(destDir, fileName).toPath();
+
+                // copy the file
+                Files.copy(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+                // store the relative path, this is the path we will save to the database
+                this.currentImagePath = "/groupf/recipeapp/images/" + fileName;
+                editImagePathField.setText(selectedFile.getName()); // display the file name on the UI
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Image Upload Success");
+                alert.setHeaderText(null);
+                alert.setContentText("Image uploaded successfully to local resources.");
+                alert.showAndWait();
+
+            } catch (IOException e) {
+                showErrorDialog("Error", "Failed to copy image file: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 
