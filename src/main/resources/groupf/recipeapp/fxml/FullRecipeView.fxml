@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="710.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.FullRecipeController">
+<BorderPane prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.FullRecipeController">
     <top>
         <HBox alignment="CENTER" prefHeight="10.0" prefWidth="200.0">
             <children>
@@ -103,15 +103,20 @@
                             </HBox>
                         </VBox>
                     </HBox>
-
-                    <!-- Button Area -->
-                    <VBox alignment="CENTER" spacing="10">
-                        <Button fx:id="editCommitButton" onAction="#handleEditCommit" text="Edit" />
-                        <Button onAction="#handleCloseWindow" text="Close" />
-                        <Button fx:id="deleteButton" onAction="#handleDeleteRecipe" style="-fx-background-color: #f08080; -fx-text-fill: white;" text="Delete Recipe" />
-                    </VBox>
                 </VBox>
             </content>
         </ScrollPane>
     </center>
+
+    <!-- Button Area moved to BorderPane's bottom -->
+    <bottom>
+        <VBox alignment="CENTER" spacing="10">
+            <padding>
+                <Insets bottom="10" top="10" />
+            </padding>
+            <Button fx:id="editCommitButton" onAction="#handleEditCommit" text="Edit" />
+            <Button onAction="#handleCloseWindow" text="Close" />
+            <Button fx:id="deleteButton" onAction="#handleDeleteRecipe" style="-fx-background-color: #f08080; -fx-text-fill: white;" text="Delete Recipe" />
+        </VBox>
+    </bottom>
 </BorderPane>
