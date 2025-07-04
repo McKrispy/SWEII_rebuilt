@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefWidth="900.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.FullRecipeController">
+<BorderPane prefWidth="950.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="groupf.recipeapp.controller.FullRecipeController">
     <top>
         <HBox alignment="CENTER" prefHeight="10.0" prefWidth="200.0">
             <children>
@@ -65,7 +65,7 @@
                             <HBox fx:id="imageEditBox" alignment="CENTER" spacing="10" visible="false">
                                 <Label text="Image Path:" />
                                 <TextField fx:id="editImagePathField" prefWidth="200" promptText="Enter image path or upload" />
-                                <Button fx:id="uploadImageButton" onAction="#handleUploadImage" text="Upload Image" />
+                                <Button fx:id="uploadImageButton" onAction="#handleUploadImage" text="Upload" />
                             </HBox>
                         </VBox>
 
