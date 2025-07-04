@@ -134,7 +134,7 @@ Maven will compile and launch the JavaFX application.
 │   │           ├── html/           # Contains `worldMap.html`, used for world map functionality.
 │   │           │   └── worldMap.html
 │   │           └── images/         # Stores image resources related to recipes.
-│   └── test/                   # Test directory (currently empty)
+│   └── test/                   # Test directory
 ├── pom.xml                 # Maven Project Object Model file, managing project dependencies, build configurations, and plugins.
 └── README.md               # Project documentation.
 ```
