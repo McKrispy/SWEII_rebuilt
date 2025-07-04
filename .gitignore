@@ -64,3 +64,9 @@ Thumbs.db
 # 忽略包含数据库密码的配置文件
 # 路径是相对于项目根目录的
 /src/main/resources/db_configuration/db.properties
+/src/main/resources/groupf/recipeapp/fxml/style.css
+/src/test
+/database/Dump20250615.sql
+/database/Dump20250616.sql
+/database/mysql8_0-2025_06_17_13_42_17-dump.sql
+/database/Update_imagePath.sql
