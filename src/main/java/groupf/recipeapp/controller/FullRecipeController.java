@@ -510,8 +510,12 @@ public class FullRecipeController {
         int newServings;
         try {
             newServings = Integer.parseInt(editServingField.getText());
+            if (newServings <= 0) { // check if the servings is a positive number
+                showErrorDialog("Input error", "The servings must be a positive number.");
+                return;
+            }
         } catch (NumberFormatException e) {
-            showErrorDialog("Input error", "Serving must be a valid number.");
+            showErrorDialog("Input error", "The servings must be a valid number.");
             return;
         }
 
@@ -595,8 +599,11 @@ public class FullRecipeController {
             double quantity;
             try {
                 quantity = Double.parseDouble(quantityStr);
+                if (quantity <= 0) { // check if the quantity is a positive number
+                    throw new IllegalArgumentException("The quantity of '" + name + "' must be a positive number.");
+                }
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid quantity format for ingredient \'" + name + "\': \'" + quantityStr + "\'. Quantity must be a valid number.");
+                throw new IllegalArgumentException("The quantity of '" + name + "' is invalid: '" + quantityStr + "'. It must be a valid number.");
             }
 
             Ingredient ingredient = ingredientDAO.getIngredientByName(name);
